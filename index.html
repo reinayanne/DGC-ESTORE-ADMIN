@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DGC eStore — Admin Direct Ordering</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <style>
+        :root {
+            --pink-bg: #fff5f7;
+            --pink-card: #ffffff;
+            --pink-card-hover: #fff0f3;
+            --pink-border: #ffd6e0;
+            --pink-text: #5a1a2e;
+            --pink-text-dim: #a65d7a;
+            --pink-accent: #ff6b9d;
+            --pink-accent-light: #ffb3c6;
+            --pink-accent-dark: #e91e63;
+            --pink-header-start: #ff8fab;
+            --pink-header-end: #fb6f92;
+            --gold: #d4af37;
+            --gold-light: #e8c96a;
+            --gold-dark: #b8962e;
+            --gold-glow: rgba(212,175,55,0.6);
+            --teal-deep: #0d5d65;
+            --teal-dark: #0a4a51;
+            --teal-light: #147a85;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --pending: #ff6b35;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--pink-bg) 0%, #ffe4ec 100%);
+            color: var(--pink-text); min-height: 100vh; overflow-x: hidden;
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--pink-header-start) 0%, var(--pink-header-end) 100%);
+            border-bottom: 2px solid var(--pink-accent-light); padding: 16px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(255,107,157,0.3);
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-logo {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #fff, var(--pink-accent-light));
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: var(--pink-accent-dark);
+            box-shadow: 0 0 15px rgba(255,107,157,0.3);
+        }
+        .header-title {
+            font-size: 1.2rem; font-weight: 800; color: #fff;
+            letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .header-sub { font-size: 0.7rem; color: rgba(255,255,255,0.9); letter-spacing: 3px; text-transform: uppercase; font-weight: 500; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .btn-header {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff;
+            padding: 9px 16px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 0.5px; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-header:hover { background: #fff; color: var(--pink-accent-dark); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+        .music-toggle {
+            width: 42px; height: 42px; border-radius: 10px;
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s ease; font-size: 18px;
+        }
+        .music-toggle:hover { background: #fff; color: var(--pink-accent-dark); transform: scale(1.1); }
+        .music-toggle.playing { color: var(--gold); background: rgba(255,255,255,0.9); }
+        .main-container {
+            display: grid; grid-template-columns: 1fr 380px; gap: 20px;
+            padding: 20px; max-width: 1600px; margin: 0 auto;
+        }
+        @media (max-width: 1200px) { .main-container { grid-template-columns: 1fr; } }
+        .card {
+            background: var(--pink-card); border: 1px solid var(--pink-border); border-radius: 16px;
+            padding: 22px; position: relative; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(255,107,157,0.08);
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--pink-accent), transparent, var(--pink-accent));
+        }
+        .card-title {
+            font-size: 0.95rem; font-weight: 700; color: var(--pink-accent-dark);
+            margin-bottom: 18px; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+        }
+        .card-title i { font-size: 1rem; color: var(--pink-accent); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-label { font-size: 0.75rem; color: var(--pink-text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .form-input, .form-select, .form-textarea {
+            background: #fff; border: 1px solid var(--pink-border); border-radius: 10px;
+            padding: 11px 14px; color: var(--pink-text); font-family: inherit; font-size: 0.95rem;
+            transition: all 0.3s ease; outline: none; -webkit-appearance: none; appearance: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(255,107,157,0.15);
+        }
+        .form-textarea { min-height: 130px; resize: vertical; font-size: 0.9rem; line-height: 1.5; }
+        .form-select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a65d7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+        }
+        .form-select option { background: #fff; color: var(--pink-text); }
+        .paste-hint { font-size: 0.78rem; color: var(--pink-text-dim); display: flex; align-items: center; gap: 6px; }
+        .paste-hint i { color: var(--pink-accent); }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--pink-accent), var(--pink-accent-dark)); border: none;
+            color: #fff; padding: 13px 26px; border-radius: 10px;
+            font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px; cursor: pointer;
+            transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255,107,157,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,107,157,0.4); }
+        .btn-secondary {
+            background: transparent; border: 1px solid var(--pink-border); color: var(--pink-text-dim);
+            padding: 11px 20px; border-radius: 10px; font-weight: 600; font-size: 0.82rem;
+            cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-secondary:hover { border-color: var(--pink-accent); color: var(--pink-accent); background: rgba(255,107,157,0.05); }
+        .btn-danger {
+            background: rgba(231,76,60,0.1); border: 1px solid var(--danger); color: var(--danger);
+            padding: 9px 15px; border-radius: 8px; font-weight: 600; font-size: 0.78rem;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn-danger:hover { background: var(--danger); color: white; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+        .parse-btn {
+            background: rgba(255,107,157,0.15); border: 1px dashed var(--pink-accent); color: var(--pink-accent-dark);
+            padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        }
+        .parse-btn:hover { background: var(--pink-accent); color: #fff; }
+
+        /* ===== RECEIPT STYLES (Teal + Gold from 2nd HTML) ===== */
+        .receipt-wrapper { display: none; }
+        .receipt-wrapper.active { display: block; animation: receiptSlide 0.5s ease; }
+        @keyframes receiptSlide { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .receipt-card {
+            background: #fff; width: 100%; max-width: 480px; margin: 0 auto;
+            border-radius: 0px 0px 0 0; overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.15), 0 0 0 2px rgba(212,175,55,0.2);
+            position: relative;
+        }
+        .receipt-card.download-mode { border-radius: 0 !important; box-shadow: none !important; }
+        .receipt-header {
+            background: linear-gradient(135deg, var(--teal-deep) 0%, var(--teal-light) 100%);
+            color: #fff; text-align: center; padding: 40px 24px 32px;
+            position: relative; overflow: hidden; border-bottom: 3px solid var(--gold);
+        }
+        .receipt-header::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+            animation: shimmerRotate 3s infinite linear;
+        }
+        @keyframes shimmerRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .receipt-header img { height: 80px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); position: relative; z-index: 1; }
+        .receipt-header p { margin: 0; font-size: 15px; font-weight: 600; opacity: 0.95; position: relative; z-index: 1; letter-spacing: 0.3px; }
+        .receipt-content { padding: 28px; }
+        .receipt-status { display: flex; justify-content: space-between; margin: 28px 0 16px; padding: 0 8px; }
+        .status-step { text-align: center; font-size: 11px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; position: relative; font-family: inherit; }
+        .status-step::after { content: ''; position: absolute; top: 19px; left: 50%; width: 100%; height: 2px; background: #e0e0e0; z-index: 0; }
+        .status-step:last-child::after { display: none; }
+        .status-step .circle { width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; margin: 0 auto 8px; position: relative; z-index: 1; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .status-step.active { color: var(--pink-text); }
+        .status-step.active .circle { background: var(--success); animation: pulse 1.6s infinite; box-shadow: 0 0 0 0 rgba(0,208,132,0.7); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,208,132,0.8); } 70% { box-shadow: 0 0 0 12px rgba(0,208,132,0); } 100% { box-shadow: 0 0 0 0 rgba(0,208,132,0); } }
+        .status-step.pending .circle { background: var(--pending); animation: pulsePending 1.6s infinite; box-shadow: 0 0 0 0 rgba(255,107,53,0.7); }
+        @keyframes pulsePending { 0% { box-shadow: 0 0 0 0 rgba(255,107,53,0.8); } 70% { box-shadow: 0 0 0 12px rgba(255,107,53,0); } 100% { box-shadow: 0 0 0 0 rgba(255,107,53,0); } }
+        .status-step.paid .circle { background: var(--success); }
+        .status-step.processing .circle { background: var(--warning); }
+        .status-step.completed .circle { background: var(--success); }
+        .status-step.cancelled .circle { background: var(--danger); }
+        .receipt-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 14px; color: #555; }
+        .receipt-row b { color: var(--pink-text); font-weight: 600; font-size: 14px; }
+        .receipt-row.discount { color: var(--success); font-weight: 600; }
+        .receipt-row.discount span { color: var(--success); font-weight: 700; }
+        .receipt-row.original-price { text-decoration: line-through; opacity: 0.6; font-size: 13px; }
+        .receipt-row.product-info { flex-direction: row; align-items: center; gap: 0; margin: 12px 0; padding: 0; background: transparent; border-radius: 0; border: none; color: #555; box-shadow: none; }
+        .receipt-row.product-info b { color: var(--pink-text); font-size: 14px; text-transform: none; letter-spacing: normal; font-weight: 600; }
+        .receipt-row.product-info span { color: #555; font-size: 14px; font-weight: normal; letter-spacing: normal; }
+        .receipt-row.quantity-info { background: transparent; padding: 0; border-radius: 0; border-left: none; }
+        .receipt-row.quantity-info b { font-weight: 600; font-size: 14px; }
+        .badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(0,208,132,0.3); }
+        .badge.pending { background: linear-gradient(135deg, #ff6b35 0%, var(--pending) 100%); color: #fff; box-shadow: 0 4px 12px rgba(255,107,53,0.3); }
+        .badge.processing { background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: #fff; box-shadow: 0 4px 12px rgba(243,156,18,0.3); }
+        .badge.completed { background: linear-gradient(135deg, #1ea35b 0%, var(--success) 100%); color: #fff; box-shadow: 0 4px 12px rgba(0,208,132,0.3); }
+        .badge.cancelled { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; box-shadow: 0 4px 12px rgba(231,76,60,0.3); }
+        .receipt-divider { border: none; border-top: 2px dashed #e0e0e0; margin: 20px 0; position: relative; }
+        .receipt-divider::before, .receipt-divider::after { content: ''; position: absolute; top: -10px; width: 20px; height: 20px; background: #f0f4f8; border-radius: 50%; }
+        .receipt-divider::before { left: -30px; }
+        .receipt-divider::after { right: -30px; }
+        .receipt-total { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 20px; color: var(--pink-text); }
+        .receipt-total span:last-child { color: var(--teal-deep); font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .receipt-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #888; margin-top: 8px; font-weight: 500; letter-spacing: 0.3px; }
+        .order-id-wrapper { display: flex; align-items: center; gap: 6px; }
+        .copy-btn { cursor: pointer; color: var(--teal-deep); padding: 2px 4px; border-radius: 4px; transition: all 0.2s ease; font-size: 12px; display: inline-flex; align-items: center; }
+        .copy-btn:hover { color: var(--gold); background: rgba(13,93,101,0.1); }
+        .copy-btn.copied { color: var(--success); }
+        .receipt-footer { text-align: center; padding: 24px 28px 28px; background: linear-gradient(180deg, #fafafa 0%, #f0f4f8 100%); border-top: 1px solid #eee; }
+        .status-message { display: block; font-size: 13px; color: var(--teal-deep); margin-bottom: 16px; font-weight: 600; min-height: 20px; letter-spacing: 0.3px; }
+        .status-message.success { color: var(--success); }
+        .status-message.processing { color: var(--warning); }
+        .status-message.error { color: var(--danger); }
+        .status-message.pending { color: var(--pending); }
+        .live-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--success); font-weight: 600; margin-left: 8px; opacity: 0; transition: opacity 0.3s; letter-spacing: 0.5px; }
+        .live-indicator.active { opacity: 1; }
+        .live-indicator i { font-size: 10px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .barcode-container { background: #fff; padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #eee; }
+        .barcode-container svg { width: 100%; height: 70px; }
+        .receipt-footer b { display: block; color: var(--teal-deep); font-size: 16px; letter-spacing: 2px; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; }
+        .receipt-actions { display: flex; flex-direction: column; gap: 10px; }
+        .receipt-btn { width: 100%; padding: 14px 20px; border-radius: 12px; border: 2px solid var(--teal-light); background: transparent; color: var(--teal-deep); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .receipt-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,93,101,0.2); }
+        .receipt-btn.primary { background: linear-gradient(135deg, var(--teal-light) 0%, var(--teal-deep) 100%); border: none; color: #fff; box-shadow: 0 4px 15px rgba(13,93,101,0.3); }
+        .receipt-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .admin-controls {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border: 2px dashed var(--warning);
+            border-radius: 16px; padding: 20px; margin: 20px 28px; text-align: center;
+        }
+        .admin-controls h4 { color: #e65100; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .admin-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #00a884 100%); color: #fff; border: none;
+            padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; margin: 5px;
+            transition: all 0.3s; font-size: 13px; letter-spacing: 0.3px;
+        }
+        .admin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,208,132,0.3); }
+        .admin-btn.cancel { background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%); }
+        .download-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(13,93,101,0.9); display: none; justify-content: center;
+            align-items: center; z-index: 99999; backdrop-filter: blur(5px);
+        }
+        .download-overlay.active { display: flex; }
+        .download-spinner { width: 60px; height: 60px; border: 4px solid var(--gold); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .download-text { color: #fff; margin-top: 16px; font-weight: 600; text-align: center; letter-spacing: 0.5px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== PINK THEME COMPONENTS ===== */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card {
+            background: linear-gradient(135deg, var(--pink-accent-light), var(--pink-accent));
+            border: 1px solid var(--pink-border); border-radius: 12px; padding: 18px;
+            text-align: center; transition: all 0.3s ease; color: #fff;
+            box-shadow: 0 4px 15px rgba(255,107,157,0.2);
+        }
+        .stat-card:hover { transform: translateY(-3px); border-color: var(--pink-accent-dark); box-shadow: 0 8px 25px rgba(255,107,157,0.3); }
+        .stat-icon { font-size: 1.6rem; color: #fff; margin-bottom: 6px; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; color: #fff; }
+        .stat-label { font-size: 0.72rem; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; font-weight: 500; }
+        .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--pink-border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        thead { background: linear-gradient(135deg, var(--pink-accent-light), var(--pink-accent)); }
+        th { padding: 12px 14px; text-align: left; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: #fff; font-weight: 700; white-space: nowrap; }
+        td { padding: 11px 14px; border-bottom: 1px solid var(--pink-border); color: var(--pink-text); }
+        tbody tr { transition: all 0.2s ease; }
+        tbody tr:hover { background: var(--pink-card-hover); }
+        tbody tr:last-child td { border-bottom: none; }
+        .badge-table { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+        .badge-gold { background: rgba(212,175,55,0.15); color: var(--gold-dark); border: 1px solid var(--gold); }
+        .badge-pink { background: rgba(255,107,157,0.15); color: var(--pink-accent-dark); border: 1px solid var(--pink-accent); }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(90,26,46,0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal {
+            background: var(--pink-card); border: 1px solid var(--pink-border); border-radius: 16px;
+            width: 100%; max-width: 650px; max-height: 85vh; overflow-y: auto;
+            position: relative; animation: modalSlide 0.3s ease;
+            box-shadow: 0 20px 60px rgba(255,107,157,0.2);
+        }
+        @keyframes modalSlide { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--pink-border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { color: var(--pink-accent-dark); font-size: 1rem; font-weight: 700; letter-spacing: 0.5px; }
+        .modal-close { background: none; border: none; color: var(--pink-text-dim); font-size: 1.5rem; cursor: pointer; transition: color 0.2s; }
+        .modal-close:hover { color: var(--pink-accent); }
+        .modal-body { padding: 22px; }
+        .top-customer-item {
+            display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 10px;
+            margin-bottom: 10px; background: var(--pink-bg); border: 1px solid var(--pink-border);
+            transition: all 0.3s ease;
+        }
+        .top-customer-item:hover { border-color: var(--pink-accent); transform: translateX(5px); }
+        .rank-badge {
+            width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a1a; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #1a1a1a; }
+        .rank-3 { background: linear-gradient(135deg, #CD7F32, #B87333); color: white; }
+        .rank-other { background: var(--pink-accent-light); color: var(--pink-accent-dark); border: 1px solid var(--pink-accent); }
+        .top-customer-info { flex: 1; }
+        .top-customer-name { font-weight: 700; font-size: 0.95rem; color: var(--pink-text); }
+        .top-customer-meta { font-size: 0.78rem; color: var(--pink-text-dim); margin-top: 2px; }
+        .top-customer-orders { text-align: right; }
+        .top-customer-count { font-size: 1.2rem; font-weight: 800; color: var(--pink-accent); }
+        .top-customer-label { font-size: 0.72rem; color: var(--pink-text-dim); }
+        .toast-container { position: fixed; top: 85px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            background: var(--pink-card); border: 1px solid var(--pink-border); border-left: 4px solid var(--pink-accent);
+            border-radius: 10px; padding: 14px 18px; min-width: 260px;
+            box-shadow: 0 10px 30px rgba(255,107,157,0.2); animation: toastSlide 0.4s ease;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        @keyframes toastSlide { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        .toast-icon { font-size: 1.1rem; }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error .toast-icon { color: var(--danger); }
+        .toast-text { font-size: 0.88rem; font-weight: 500; }
+        .empty-state { text-align: center; padding: 45px 20px; color: var(--pink-text-dim); }
+        .empty-state i { font-size: 2.8rem; color: var(--pink-border); margin-bottom: 12px; }
+        .empty-state p { font-size: 0.92rem; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--pink-bg); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--pink-accent) 0%, var(--pink-accent-light) 100%); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--pink-accent-dark); }
+        @media print {
+            body * { visibility: hidden; }
+            .receipt-wrapper.active, .receipt-wrapper.active * { visibility: visible; }
+            .receipt-wrapper.active { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); box-shadow: none; border: 1px solid #ccc; }
+            .receipt-actions, .admin-controls { display: none !important; }
+        }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 12px; padding: 14px; }
+            .main-container { padding: 14px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .header-actions { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .receipt-header img { height: 50px; }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <div class="header-logo"><i class="fas fa-crown"></i></div>
+            <div>
+                <div class="header-title">DGC eSTORE</div>
+                <div class="header-sub">Admin Direct Ordering</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-header" onclick="openTopCustomers()"><i class="fas fa-trophy"></i> Top Customers</button>
+            <button class="btn-header" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export Excel</button>
+            <div class="music-toggle" id="musicToggle" title="Toggle Music"><i class="fas fa-music"></i></div>
+        </div>
+    </header>
+
+    <audio id="bgMusic" loop>
+        <source src="coffee.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="main-container">
+        <div class="left-col">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="stat-value" id="statTotalOrders">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-peso-sign"></i></div>
+                    <div class="stat-value" id="statTotalRevenue">₱0</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-value" id="statTotalCustomers">0</div>
+                    <div class="stat-label">Customers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+                    <div class="stat-value" id="statTodayOrders">0</div>
+                    <div class="stat-label">Today's Orders</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-clipboard-list"></i> New Order Entry</div>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label"><i class="fas fa-paste"></i> Paste Order Details</label>
+                        <textarea class="form-textarea" id="pasteInput" placeholder="Paste order details here...
+
+Example:
+📋 DGC eStore FORM
+
+Order: Starlight Normal
+Price: ₱ 179
+
+IGN: Super Joshh
+User ID: 613069471
+Server: 10110"></textarea>
+                        <div style="display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+                            <div class="paste-hint"><i class="fas fa-lightbulb"></i> Paste the full order message</div>
+                            <button class="parse-btn" onclick="manualParse()"><i class="fas fa-magic"></i> Parse Now</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Customer Name <span style="color:var(--pink-text-dim);font-size:0.72rem;">(Optional)</span></label>
+                        <select class="form-select" id="customerSelect"><option value="">— Select or Add Customer —</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Or Type New Customer</label>
+                        <input type="text" class="form-input" id="newCustomerInput" placeholder="Enter new customer name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Order Item</label>
+                        <input type="text" class="form-input" id="orderItem" placeholder="e.g. Starlight Normal">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price (₱)</label>
+                        <input type="number" class="form-input" id="orderPrice" placeholder="e.g. 179">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">IGN</label>
+                        <input type="text" class="form-input" id="orderIGN" placeholder="e.g. Super Joshh">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">User ID</label>
+                        <input type="text" class="form-input" id="orderUserID" placeholder="e.g. 613069471">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Server ID</label>
+                        <input type="text" class="form-input" id="orderServer" placeholder="e.g. 10110">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="processOrder()"><i class="fas fa-receipt"></i> Generate Receipt & Save</button>
+                    <button class="btn-secondary" onclick="clearForm()"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+            </div>
+
+            <!-- RECEIPT PREVIEW -->
+            <div class="card receipt-wrapper" id="receiptCardWrapper">
+                <div class="card-title"><i class="fas fa-file-invoice"></i> Official Receipt Preview</div>
+                <div id="receiptOutput">
+                    <div class="receipt-card" id="receiptCard">
+                        <div class="receipt-header">
+                            <img src="https://i.imgur.com/qZQxKje.png" alt="DGC eStore" id="receiptLogo" crossorigin="anonymous" onerror="this.src='dgcestorelogo.png'">
+                            <p id="headerStatusText">Your order is pending admin confirmation</p>
+                        </div>
+                        <div class="receipt-content" id="receiptContent">
+                            <div class="receipt-status">
+                                <div class="status-step" id="step-pending"><div class="circle"><i class="fas fa-clock"></i></div><div>Pending</div></div>
+                                <div class="status-step" id="step-paid"><div class="circle"><i class="fas fa-check"></i></div><div>Paid</div></div>
+                                <div class="status-step" id="step-processing"><div class="circle"><i class="fas fa-cog"></i></div><div>Processing</div></div>
+                                <div class="status-step" id="step-completed"><div class="circle"><i class="fas fa-check"></i></div><div>Completed</div></div>
+                            </div>
+                            <div class="receipt-row"><b>Transaction Status</b><span class="badge pending" id="statusBadge">Pending</span></div>
+                            <hr class="receipt-divider">
+                            <div class="receipt-row product-info"><b>Product</b><span id="receiptProduct">—</span></div>
+                            <div class="receipt-row quantity-info"><b>Quantity</b><span id="receiptQuantity">x1</span></div>
+                            <div class="receipt-row"><b>IGN</b><span id="receiptIGN">—</span></div>
+                            <div class="receipt-row"><b>Game ID</b><span id="receiptGameId">—</span></div>
+                            <div class="receipt-row"><b>Server</b><span id="receiptServer">—</span></div>
+                            <div class="receipt-row" style="display:none;"><b>Order ID</b><span id="receiptOrderIdDisplay">—</span></div>
+                            <hr class="receipt-divider">
+                            <div class="receipt-total"><span>Total Amount</span><span id="receiptTotal">₱0.00</span></div>
+                            <div class="receipt-meta">
+                                <span id="receiptDate">--</span>
+                                <span class="order-id-wrapper"><span id="receiptOrderId">#------</span><span class="copy-btn" id="copyOrderId" onclick="copyOrderId()" title="Copy Order ID"><i class="fas fa-copy"></i></span></span>
+                            </div>
+                        </div>
+                        <div class="admin-controls" id="adminControls">
+                            <h4><i class="fas fa-shield-alt"></i> Admin Controls</h4>
+                            <button class="admin-btn" onclick="adminUpdateStatus('paid')"><i class="fas fa-check"></i> Confirm Payment</button>
+                            <button class="admin-btn" onclick="adminUpdateStatus('processing')"><i class="fas fa-play"></i> Start Processing</button>
+                            <button class="admin-btn" onclick="adminUpdateStatus('completed')"><i class="fas fa-check-circle"></i> Complete Order</button>
+                            <button class="admin-btn cancel" onclick="adminUpdateStatus('cancelled')"><i class="fas fa-times-circle"></i> Cancel Order</button>
+                        </div>
+                        <div class="receipt-footer">
+                            <span class="status-message pending" id="statusMessage">Waiting for admin to confirm your payment...<span class="live-indicator" id="liveIndicator"><i class="fas fa-circle"></i> LIVE</span></span>
+                            <div class="barcode-container"><svg id="barcode"></svg></div>
+                            <b>THANK YOU FOR YOUR PURCHASE!</b>
+                            <div class="receipt-actions">
+                                <button class="receipt-btn primary" id="downloadBtn" onclick="downloadReceipt()"><i class="fas fa-download"></i> Download Receipt</button>
+                                <button class="receipt-btn" onclick="notifyMessenger()"><i class="fab fa-facebook-messenger"></i> Notify via Messenger</button>
+                                <button class="receipt-btn" onclick="clearForm()"><i class="fas fa-eraser"></i> New Order</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span><i class="fas fa-history"></i> Order History</span>
+                    <button class="btn-danger" onclick="clearAllOrders()" style="padding:5px 12px;font-size:0.72rem;"><i class="fas fa-trash"></i> Clear All</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>Date</th><th>Customer</th><th>Order</th><th>IGN</th><th>User ID</th><th>Server</th><th>Price</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr><td colspan="10"><div class="empty-state"><i class="fas fa-inbox"></i><p>No orders yet. Paste an order above to get started.</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <button class="btn-secondary" onclick="openTopCustomers()" style="justify-content:center;padding:13px;"><i class="fas fa-trophy"></i> View Top Customers (Rank 1-10)</button>
+                    <button class="btn-secondary" onclick="exportToExcel()" style="justify-content:center;padding:13px;"><i class="fas fa-file-excel"></i> Export All to Excel</button>
+                    <button class="btn-secondary" onclick="printAllReceipts()" style="justify-content:center;padding:13px;"><i class="fas fa-print"></i> Print All Receipts</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-clock"></i> Recent Activity</div>
+                <div id="recentActivity" style="max-height:380px;overflow-y:auto;">
+                    <div class="empty-state" style="padding:28px 10px;"><i class="fas fa-history"></i><p>No recent activity</p></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-address-book"></i> Customer Directory</div>
+                <div id="customerDirectory" style="max-height:320px;overflow-y:auto;">
+                    <div class="empty-state" style="padding:28px 10px;"><i class="fas fa-users"></i><p>No customers yet</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="topCustomersModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-trophy"></i> Top Customers — Rank 1-10</div>
+                <button class="modal-close" onclick="closeTopCustomers()">&times;</button>
+            </div>
+            <div class="modal-body" id="topCustomersBody">
+                <div class="empty-state"><i class="fas fa-trophy"></i><p>No customer data available yet. Process some orders first!</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="download-overlay" id="downloadOverlay">
+        <div style="text-align:center;">
+            <div class="download-spinner"></div>
+            <div class="download-text" id="downloadText">Generating Receipt...</div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('dgc_orders')) || [];
+        let customers = JSON.parse(localStorage.getItem('dgc_customers')) || [];
+        let currentOrder = null;
+        let currentOrderId = null;
+        let isDownloading = false;
+
+        // Bold Unicode to ASCII normalizer
+        const boldMap = {};
+        for (let i = 0; i < 26; i++) boldMap[String.fromCodePoint(0x1D400 + i)] = String.fromCharCode(65 + i);
+        for (let i = 0; i < 26; i++) boldMap[String.fromCodePoint(0x1D41A + i)] = String.fromCharCode(97 + i);
+        for (let i = 0; i < 26; i++) boldMap[String.fromCodePoint(0x1D5D4 + i)] = String.fromCharCode(65 + i);
+        for (let i = 0; i < 26; i++) boldMap[String.fromCodePoint(0x1D5EE + i)] = String.fromCharCode(97 + i);
+        for (let i = 0; i < 26; i++) boldMap[String.fromCodePoint(0x1D468 + i)] = String.fromCharCode(65 + i);
+        for (let i = 0; i < 26; i++) boldMap[String.fromCodePoint(0x1D482 + i)] = String.fromCharCode(97 + i);
+        boldMap['\uFF1A'] = ':';
+        for (let i = 0; i <= 9; i++) boldMap[String.fromCodePoint(0xFF10 + i)] = String(i);
+
+        function normalizeText(text) {
+            let result = '';
+            for (const char of text) result += (boldMap[char] !== undefined) ? boldMap[char] : char;
+            return result;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats(); renderOrdersTable(); renderCustomerSelect(); renderCustomerDirectory(); renderRecentActivity();
+            const pasteInput = document.getElementById('pasteInput');
+            pasteInput.addEventListener('paste', () => setTimeout(autoParsePaste, 50));
+            pasteInput.addEventListener('input', debounce(autoParsePaste, 400));
+            setupMusicToggle();
+        });
+
+        function debounce(fn, ms) {
+            let timer;
+            return function(...args) { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), ms); };
+        }
+
+        function setupMusicToggle() {
+            const musicToggle = document.getElementById('musicToggle');
+            const bgMusic = document.getElementById('bgMusic');
+            let musicPlaying = false;
+            musicToggle.addEventListener('click', () => {
+                if (musicPlaying) {
+                    bgMusic.pause();
+                    musicToggle.innerHTML = '<i class="fas fa-music"></i>';
+                    musicToggle.classList.remove('playing');
+                    showToast('Music paused', 'success');
+                } else {
+                    bgMusic.play().then(() => {
+                        musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                        musicToggle.classList.add('playing');
+                        showToast('Playing coffee.mp3', 'success');
+                    }).catch(() => {
+                        showToast('Could not play coffee.mp3. Make sure the file exists.', 'error');
+                    });
+                }
+                musicPlaying = !musicPlaying;
+            });
+        }
+
+        function manualParse() { autoParsePaste(); showToast('Fields parsed from pasted text!', 'success'); }
+
+        function autoParsePaste() {
+            const rawText = document.getElementById('pasteInput').value;
+            if (!rawText.trim()) return;
+            const text = normalizeText(rawText);
+
+            const orderPatterns = [/Order[:\s]+(.+)/i, /Item[:\s]+(.+)/i, /Product[:\s]+(.+)/i];
+            for (const p of orderPatterns) {
+                const m = text.match(p);
+                if (m) { document.getElementById('orderItem').value = m[1].trim(); break; }
+            }
+            const pricePatterns = [/Price[:\s]+[₱P$]?\s*(\d[\d,]*)/i, /[₱P$]\s*(\d[\d,]*)/, /Amount[:\s]+[₱P$]?\s*(\d[\d,]*)/i, /Cost[:\s]+[₱P$]?\s*(\d[\d,]*)/i];
+            for (const p of pricePatterns) {
+                const m = text.match(p);
+                if (m) { document.getElementById('orderPrice').value = m[1].replace(/,/g, '').trim(); break; }
+            }
+            const ignPatterns = [/IGN[:\s]+(.+)/i, /In[-\s]?Game[-\s]?Name[:\s]+(.+)/i, /Nickname[:\s]+(.+)/i, /Name[:\s]+(.+)/i];
+            for (const p of ignPatterns) {
+                const m = text.match(p);
+                if (m) { document.getElementById('orderIGN').value = m[1].trim(); break; }
+            }
+            const uidPatterns = [/User[-\s]?ID[:\s]+(\d+)/i, /UID[:\s]+(\d+)/i, /ID[:\s]+(\d+)/i, /User[-\s]?Id[:\s]+(\d+)/i];
+            for (const p of uidPatterns) {
+                const m = text.match(p);
+                if (m) { document.getElementById('orderUserID').value = m[1].trim(); break; }
+            }
+            const serverPatterns = [/Server[:\s]+(\d+)/i, /Server[-\s]?ID[:\s]+(\d+)/i, /SV[:\s]+(\d+)/i];
+            for (const p of serverPatterns) {
+                const m = text.match(p);
+                if (m) { document.getElementById('orderServer').value = m[1].trim(); break; }
+            }
+        }
+
+        function processOrder() {
+            const item = document.getElementById('orderItem').value.trim();
+            const price = parseFloat(document.getElementById('orderPrice').value) || 0;
+            const ign = document.getElementById('orderIGN').value.trim();
+            const userID = document.getElementById('orderUserID').value.trim();
+            const server = document.getElementById('orderServer').value.trim();
+            const selectCustomer = document.getElementById('customerSelect').value;
+            const newCustomer = document.getElementById('newCustomerInput').value.trim();
+            const customerName = newCustomer || selectCustomer || 'Walk-in';
+
+            if (!item || !price || !ign || !userID || !server) {
+                showToast('Please fill in all required fields (Order, Price, IGN, User ID, Server)', 'error'); return;
+            }
+            const order = {
+                id: 'ORD-' + Date.now().toString(36).toUpperCase(),
+                date: new Date().toISOString(),
+                customer: customerName,
+                item: item,
+                price: price,
+                ign: ign,
+                userID: userID,
+                server: server,
+                timestamp: Date.now(),
+                status: 'pending'
+            };
+            orders.unshift(order);
+            localStorage.setItem('dgc_orders', JSON.stringify(orders));
+            if (newCustomer && !customers.includes(newCustomer)) { customers.push(newCustomer); localStorage.setItem('dgc_customers', JSON.stringify(customers)); }
+            showReceipt(order);
+            updateStats();
+            renderOrdersTable();
+            renderCustomerSelect();
+            renderCustomerDirectory();
+            renderRecentActivity();
+            showToast('Order saved & receipt generated!', 'success');
+        }
+
+        function showReceipt(order) {
+            currentOrder = order;
+            currentOrderId = order.id;
+            const date = new Date(order.date);
+            const dateStr = date.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = date.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById('receiptProduct').textContent = order.item;
+            document.getElementById('receiptQuantity').textContent = 'x1';
+            document.getElementById('receiptIGN').textContent = order.ign;
+            document.getElementById('receiptGameId').textContent = order.userID;
+            document.getElementById('receiptServer').textContent = order.server;
+            document.getElementById('receiptOrderIdDisplay').textContent = order.id;
+            document.getElementById('receiptTotal').textContent = '₱' + order.price.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('receiptOrderId').textContent = '#' + order.id;
+            document.getElementById('receiptDate').textContent = dateStr + ' | ' + timeStr;
+
+            try {
+                const barcodeId = order.id.replace(/[^0-9a-zA-Z]/g, '') || order.id;
+                JsBarcode("#barcode", barcodeId, {format: "CODE128", lineColor: "#0d5d65", width: 2, height: 50, displayValue: false});
+            } catch(e) {}
+
+            applyStatus(order.status || 'pending');
+
+            document.getElementById('receiptCardWrapper').classList.add('active');
+            document.getElementById('receiptCardWrapper').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function applyStatus(status) {
+            if (!currentOrder) return;
+            currentOrder.status = status;
+            const steps = ['pending', 'paid', 'processing', 'completed'];
+            const currentIndex = steps.indexOf(status);
+            steps.forEach((step, index) => {
+                const el = document.getElementById('step-' + step);
+                const circle = el.querySelector('.circle');
+                const icon = circle.querySelector('i');
+                el.classList.remove('active', 'pending', 'paid', 'processing', 'completed', 'cancelled');
+                if (status === 'completed') {
+                    el.classList.add('active', 'completed');
+                    icon.className = 'fas fa-check';
+                } else if (index <= currentIndex && currentIndex !== -1) {
+                    el.classList.add('active', step);
+                    const iconMap = {'pending': 'fa-clock','paid': 'fa-check','processing': 'fa-cog','completed': 'fa-check'};
+                    icon.className = 'fas ' + (iconMap[step] || 'fa-circle');
+                } else {
+                    const iconMap = {'pending': 'fa-clock','paid': 'fa-check','processing': 'fa-cog','completed': 'fa-check'};
+                    icon.className = 'fas ' + (iconMap[step] || 'fa-circle');
+                }
+            });
+            if (status === 'cancelled') {
+                document.getElementById('step-pending').classList.add('active', 'cancelled');
+            }
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            badge.className = 'badge';
+            if (status === 'pending') badge.classList.add('pending');
+            else if (status === 'processing') badge.classList.add('processing');
+            else if (status === 'completed') badge.classList.add('completed');
+            else if (status === 'cancelled') badge.classList.add('cancelled');
+            const messages = {
+                pending: 'Waiting for admin to confirm your payment...',
+                paid: 'Payment confirmed! Waiting for processing to begin.',
+                processing: 'Your diamond purchase is being processed...',
+                completed: 'Diamonds sent! Kindly check in game.',
+                cancelled: 'Order cancelled. Contact support.'
+            };
+            const msgEl = document.getElementById('statusMessage');
+            msgEl.textContent = messages[status] || 'Status: ' + status;
+            msgEl.className = 'status-message ' + (status === 'completed' ? 'success' : status === 'cancelled' ? 'error' : status === 'processing' ? 'processing' : status === 'paid' ? 'success' : 'pending');
+            document.getElementById('headerStatusText').textContent = messages[status] || 'Your order is pending admin confirmation';
+            document.getElementById('liveIndicator').classList.add('active');
+        }
+
+        function adminUpdateStatus(newStatus) {
+            if (!currentOrder || !currentOrderId) {
+                showToast('No order loaded', 'error');
+                return;
+            }
+            applyStatus(newStatus);
+            const orderIndex = orders.findIndex(o => o.id === currentOrderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                orders[orderIndex].updatedAt = Date.now();
+                localStorage.setItem('dgc_orders', JSON.stringify(orders));
+            }
+            showToast('Status updated to: ' + newStatus.toUpperCase(), 'success');
+            renderOrdersTable();
+            renderRecentActivity();
+        }
+
+        function updateStats() {
+            const totalOrders = orders.length;
+            const totalRevenue = orders.reduce((sum, o) => sum + o.price, 0);
+            const uniqueCustomers = [...new Set(orders.map(o => o.customer))].length;
+            const today = new Date().toDateString();
+            const todayOrders = orders.filter(o => new Date(o.date).toDateString() === today).length;
+            document.getElementById('statTotalOrders').textContent = totalOrders;
+            document.getElementById('statTotalRevenue').textContent = '₱' + totalRevenue.toLocaleString();
+            document.getElementById('statTotalCustomers').textContent = uniqueCustomers;
+            document.getElementById('statTodayOrders').textContent = todayOrders;
+        }
+
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fas fa-inbox"></i><p>No orders yet. Paste an order above to get started.</p></div></td></tr>`;
+                return;
+            }
+            tbody.innerHTML = orders.map((order, idx) => {
+                const date = new Date(order.date);
+                const dateStr = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+                const timeStr = date.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+                const status = order.status || 'pending';
+                const statusClass = status === 'completed' ? 'badge-gold' : status === 'cancelled' ? 'badge-pink' : 'badge-pink';
+                return `<tr>
+                    <td><span class="badge-table badge-pink">#${orders.length - idx}</span></td>
+                    <td>${dateStr}<br><span style="font-size:0.72rem;color:var(--pink-text-dim)">${timeStr}</span></td>
+                    <td>${order.customer}</td>
+                    <td><span class="badge-table badge-gold">${order.item}</span></td>
+                    <td>${order.ign}</td>
+                    <td>${order.userID}</td>
+                    <td>${order.server}</td>
+                    <td style="font-weight:700;color:var(--pink-accent-dark)">₱${order.price.toLocaleString()}</td>
+                    <td><span class="badge-table ${statusClass}" style="text-transform:capitalize;">${status}</span></td>
+                    <td>
+                        <button class="btn-secondary" style="padding:5px 10px;font-size:0.72rem;" onclick="reprintReceipt('${order.id}')"><i class="fas fa-print"></i></button>
+                        <button class="btn-danger" style="padding:5px 10px;font-size:0.72rem;margin-left:4px;" onclick="deleteOrder('${order.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function reprintReceipt(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) { showReceipt(order); showToast('Receipt reprinted!', 'success'); }
+        }
+
+        function deleteOrder(id) {
+            if (!confirm('Delete this order?')) return;
+            orders = orders.filter(o => o.id !== id);
+            localStorage.setItem('dgc_orders', JSON.stringify(orders));
+            updateStats(); renderOrdersTable(); renderCustomerDirectory(); renderRecentActivity();
+            showToast('Order deleted', 'success');
+        }
+
+        function clearAllOrders() {
+            if (!confirm('Clear ALL orders? This cannot be undone!')) return;
+            orders = []; localStorage.setItem('dgc_orders', JSON.stringify(orders));
+            updateStats(); renderOrdersTable(); renderCustomerDirectory(); renderRecentActivity();
+            showToast('All orders cleared', 'success');
+        }
+
+        function renderCustomerSelect() {
+            const select = document.getElementById('customerSelect');
+            select.innerHTML = '<option value="">— Select or Add Customer —</option>';
+            customers.sort().forEach(c => {
+                const option = document.createElement('option');
+                option.value = c; option.textContent = c; select.appendChild(option);
+            });
+        }
+
+        function renderCustomerDirectory() {
+            const container = document.getElementById('customerDirectory');
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding:28px 10px;"><i class="fas fa-users"></i><p>No customers yet</p></div>';
+                return;
+            }
+            const customerStats = {};
+            orders.forEach(o => {
+                if (!customerStats[o.customer]) customerStats[o.customer] = { orders: 0, spent: 0 };
+                customerStats[o.customer].orders++; customerStats[o.customer].spent += o.price;
+            });
+            const sorted = Object.entries(customerStats).sort((a, b) => b[1].orders - a[1].orders);
+            container.innerHTML = sorted.map(([name, stats], i) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--pink-border);${i===sorted.length-1?'border-bottom:none;':''}">
+                    <div><div style="font-weight:700;font-size:0.92rem;">${name}</div><div style="font-size:0.78rem;color:var(--pink-text-dim);">₱${stats.spent.toLocaleString()} total spent</div></div>
+                    <div style="text-align:right;"><div style="font-weight:800;color:var(--pink-accent);">${stats.orders}</div><div style="font-size:0.72rem;color:var(--pink-text-dim);">orders</div></div>
+                </div>`).join('');
+        }
+
+        function openTopCustomers() {
+            const modal = document.getElementById('topCustomersModal');
+            const body = document.getElementById('topCustomersBody');
+            if (orders.length === 0) {
+                body.innerHTML = `<div class="empty-state"><i class="fas fa-trophy" style="font-size:2.8rem;color:var(--pink-border);"></i><p>No customer data available yet.<br>Process some orders first!</p></div>`;
+                modal.classList.add('active'); return;
+            }
+            const customerStats = {};
+            orders.forEach(o => {
+                if (!customerStats[o.customer]) customerStats[o.customer] = { orders: 0, spent: 0, lastOrder: o.date };
+                customerStats[o.customer].orders++; customerStats[o.customer].spent += o.price;
+                if (new Date(o.date) > new Date(customerStats[o.customer].lastOrder)) customerStats[o.customer].lastOrder = o.date;
+            });
+            const sorted = Object.entries(customerStats).sort((a, b) => b[1].orders - a[1].orders).slice(0, 10);
+            body.innerHTML = sorted.map(([name, stats], i) => {
+                const rank = i + 1;
+                const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+                const lastDate = new Date(stats.lastOrder).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+                return `<div class="top-customer-item">
+                    <div class="rank-badge ${rankClass}">${rank}</div>
+                    <div class="top-customer-info">
+                        <div class="top-customer-name">${name}</div>
+                        <div class="top-customer-meta">Last order: ${lastDate} &nbsp;•&nbsp; Total spent: ₱${stats.spent.toLocaleString()}</div>
+                    </div>
+                    <div class="top-customer-orders">
+                        <div class="top-customer-count">${stats.orders}</div>
+                        <div class="top-customer-label">orders</div>
+                    </div>
+                </div>`;
+            }).join('');
+            modal.classList.add('active');
+        }
+
+        function closeTopCustomers() { document.getElementById('topCustomersModal').classList.remove('active'); }
+
+        function renderRecentActivity() {
+            const container = document.getElementById('recentActivity');
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding:28px 10px;"><i class="fas fa-history"></i><p>No recent activity</p></div>';
+                return;
+            }
+            const recent = orders.slice(0, 15);
+            container.innerHTML = recent.map(order => {
+                const timeAgo = getTimeAgo(new Date(order.date));
+                return `<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--pink-border);">
+                    <div style="width:34px;height:34px;background:var(--pink-accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-shopping-bag" style="color:var(--pink-accent-dark);font-size:0.8rem;"></i>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${order.item}</div>
+                        <div style="font-size:0.78rem;color:var(--pink-text-dim);">${order.customer} • ${order.ign}</div>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-weight:700;color:var(--pink-accent-dark);font-size:0.88rem;">₱${order.price.toLocaleString()}</div>
+                        <div style="font-size:0.72rem;color:var(--pink-text-dim);">${timeAgo}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date(); const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            return Math.floor(diff / 86400) + 'd ago';
+        }
+
+        function exportToExcel() {
+            if (orders.length === 0) { showToast('No orders to export!', 'error'); return; }
+            const data = orders.map((o, i) => ({
+                'No.': orders.length - i, 'Receipt ID': o.id,
+                'Date': new Date(o.date).toLocaleDateString('en-PH'), 'Time': new Date(o.date).toLocaleTimeString('en-PH'),
+                'Customer': o.customer, 'Order Item': o.item, 'IGN': o.ign, 'User ID': o.userID, 'Server': o.server, 'Price (₱)': o.price, 'Status': o.status || 'pending'
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+            ws['!cols'] = [{wch:5},{wch:18},{wch:12},{wch:10},{wch:18},{wch:22},{wch:18},{wch:14},{wch:10},{wch:12},{wch:12}];
+            XLSX.writeFile(wb, 'DGC_Orders_' + new Date().toISOString().split('T')[0] + '.xlsx');
+            showToast('Excel file downloaded!', 'success');
+        }
+
+        function printAllReceipts() {
+            if (orders.length === 0) { showToast('No orders to print!', 'error'); return; }
+            let allReceipts = '<div style="padding:20px;">';
+            orders.forEach(order => {
+                const date = new Date(order.date);
+                const dateStr = date.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+                const timeStr = date.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+                const status = order.status || 'pending';
+                allReceipts += `<div style="page-break-after:always;border:2px dashed #ccc;padding:28px;margin-bottom:20px;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif;background:#fff;color:#1a1a1a;">
+                    <div style="text-align:center;border-bottom:2px dashed #ccc;padding-bottom:14px;margin-bottom:14px;">
+                        <h2 style="font-family:inherit;color:#0d5d65;letter-spacing:3px;margin:0;font-weight:800;font-size:1.2rem;">OFFICIAL RECEIPT</h2>
+                        <div style="font-size:0.78rem;color:#666;letter-spacing:2px;font-weight:500;">DGC eSTORE</div>
+                    </div>
+                    <div style="text-align:center;font-size:0.78rem;color:#888;margin-bottom:12px;">${dateStr} | ${timeStr}</div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd;"><span style="color:#666;font-weight:500;">Receipt No.</span><span style="font-weight:600;">${order.id}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd;"><span style="color:#666;font-weight:500;">Customer</span><span style="font-weight:600;">${order.customer}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd;"><span style="color:#666;font-weight:500;">Order Item</span><span style="font-weight:600;">${order.item}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd;"><span style="color:#666;font-weight:500;">IGN</span><span style="font-weight:600;">${order.ign}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd;"><span style="color:#666;font-weight:500;">User ID</span><span style="font-weight:600;">${order.userID}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd;"><span style="color:#666;font-weight:500;">Server</span><span style="font-weight:600;">${order.server}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ddd;"><span style="color:#666;font-weight:500;">Status</span><span style="font-weight:600;text-transform:capitalize;">${status}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:2px solid #333;margin-top:10px;"><span style="font-size:1.05rem;font-weight:800;">TOTAL AMOUNT</span><span style="font-size:1.05rem;font-weight:700;color:#0d5d65;">₱${order.price.toLocaleString()}</span></div>
+                    <div style="text-align:center;margin-top:18px;padding-top:14px;border-top:2px dashed #ccc;">
+                        <div style="font-family:'SF Mono',SFMono-Regular,ui-monospace,Menlo,Monaco,monospace;font-size:1.2rem;letter-spacing:4px;color:#333;">${order.id}</div>
+                        <div style="font-family:inherit;font-size:0.82rem;font-weight:700;color:#b8962e;letter-spacing:2px;margin-top:8px;">THANK YOU FOR YOUR ORDER!</div>
+                    </div>
+                </div>`;
+            });
+            allReceipts += '</div>';
+            const win = window.open('', '_blank');
+            win.document.write(`<html><head><title>All Receipts</title></head><body>${allReceipts}</body></html>`);
+            win.document.close(); setTimeout(() => win.print(), 500);
+        }
+
+        function clearForm() {
+            document.getElementById('pasteInput').value = '';
+            document.getElementById('orderItem').value = '';
+            document.getElementById('orderPrice').value = '';
+            document.getElementById('orderIGN').value = '';
+            document.getElementById('orderUserID').value = '';
+            document.getElementById('orderServer').value = '';
+            document.getElementById('customerSelect').value = '';
+            document.getElementById('newCustomerInput').value = '';
+            document.getElementById('receiptCardWrapper').classList.remove('active');
+            currentOrder = null;
+            currentOrderId = null;
+            showToast('Form cleared', 'success');
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} toast-icon"></i><span class="toast-text">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(50px)'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function copyOrderId() {
+            if (!currentOrderId) { showToast('No order ID available', 'error'); return; }
+            navigator.clipboard.writeText(currentOrderId).then(() => {
+                const copyBtn = document.getElementById('copyOrderId');
+                const originalIcon = copyBtn.innerHTML;
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                showToast('Order ID copied to clipboard!', 'success');
+                setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.innerHTML = originalIcon; }, 2000);
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = currentOrderId;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Order ID copied to clipboard!', 'success');
+            });
+        }
+
+        function notifyMessenger() {
+            if (!currentOrder) {
+                showToast('No order data available', 'error');
+                return;
+            }
+            const summary = `DGC eStore ORDER SUMMARY\n\nProduct: ${currentOrder.item}\nQuantity: x1\nIGN: ${currentOrder.ign}\nGame ID: ${currentOrder.userID}\nServer: ${currentOrder.server}\n\nTotal: ₱${currentOrder.price.toLocaleString('en-PH', {minimumFractionDigits: 2})}\nDate: ${new Date(currentOrder.date).toLocaleString('en-PH')}\n\nOrder ID: ${currentOrderId}\n\nStatus: ${(currentOrder.status || 'pending').toUpperCase()}\n\n---\nHi DGC eStore Admin! I have a question about my order. Thank you`.trim();
+            const encodedMessage = encodeURIComponent(summary);
+            window.open(`https://m.me/dexterousgc?text=${encodedMessage}`, '_blank');
+            showToast('Opening Messenger with order summary...', 'success');
+        }
+
+        function downloadReceipt() {
+            if (isDownloading) return;
+            if (!currentOrder) {
+                showToast('No order data available', 'error');
+                return;
+            }
+            isDownloading = true;
+            const overlay = document.getElementById('downloadOverlay');
+            const downloadText = document.getElementById('downloadText');
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (overlay) overlay.classList.add('active');
+            if (downloadText) downloadText.textContent = 'Preparing receipt...';
+            if (downloadBtn) downloadBtn.disabled = true;
+
+            const receiptCard = document.getElementById('receiptCard');
+            const logoImg = document.getElementById('receiptLogo');
+            const elementsToHide = [document.querySelector('.receipt-actions'), document.querySelector('.status-message'), document.getElementById('liveIndicator')];
+            const originalDisplays = [];
+            elementsToHide.forEach((el, index) => {
+                if (el) {
+                    originalDisplays[index] = el.style.display;
+                    el.style.display = 'none';
+                }
+            });
+
+            const convertImageToDataURL = (imgElement) => {
+                return new Promise((resolve) => {
+                    if (!imgElement || !imgElement.src) { resolve(null); return; }
+                    if (imgElement.src.startsWith('data:') || imgElement.src.includes(window.location.hostname) || !imgElement.src.startsWith('http')) { resolve(null); return; }
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = function() {
+                        try {
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            ctx.drawImage(img, 0, 0);
+                            const dataURL = canvas.toDataURL('image/png');
+                            resolve(dataURL);
+                        } catch (e) { resolve(null); }
+                    };
+                    img.onerror = function() { resolve(null); };
+                    img.src = imgElement.src + (imgElement.src.includes('?') ? '&' : '?') + 't=' + Date.now();
+                    setTimeout(() => { if (!img.complete) resolve(null); }, 3000);
+                });
+            };
+
+            const processDownload = async () => {
+                try {
+                    if (downloadText) downloadText.textContent = 'Loading logo...';
+                    const logoDataURL = await convertImageToDataURL(logoImg);
+                    const originalSrc = logoImg ? logoImg.src : null;
+                    if (logoDataURL && logoImg) { logoImg.src = logoDataURL; }
+                    await new Promise(r => setTimeout(r, 300));
+                    if (downloadText) downloadText.textContent = 'Generating image...';
+                    const canvas = await html2canvas(receiptCard, {
+                        scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false,
+                        onclone: (clonedDoc) => {
+                            const clonedLogo = clonedDoc.getElementById('receiptLogo');
+                            if (clonedLogo) { clonedLogo.style.display = 'block'; clonedLogo.style.visibility = 'visible'; }
+                            const clonedActions = clonedDoc.querySelector('.receipt-actions');
+                            if (clonedActions) clonedActions.style.display = 'none';
+                        }
+                    });
+                    canvas.toBlob((blob) => {
+                        if (!blob) throw new Error('Failed to create blob');
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        const filename = `DGC-Receipt-${currentOrderId || 'order'}-${Date.now()}.png`;
+                        link.href = url;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        setTimeout(() => { document.body.removeChild(link); URL.revokeObjectURL(url); }, 100);
+                        showToast('Receipt downloaded successfully!', 'success');
+                        if (originalSrc && logoImg) { logoImg.src = originalSrc; }
+                    }, 'image/png', 1.0);
+                } catch (error) {
+                    showToast('Trying without logo...', 'error');
+                    await downloadWithoutLogo();
+                } finally {
+                    elementsToHide.forEach((el, index) => { if (el) { el.style.display = originalDisplays[index] || ''; } });
+                    isDownloading = false;
+                    if (overlay) overlay.classList.remove('active');
+                    if (downloadBtn) downloadBtn.disabled = false;
+                }
+            };
+
+            const downloadWithoutLogo = async () => {
+                try {
+                    const logoDisplay = logoImg ? logoImg.style.display : '';
+                    if (logoImg) logoImg.style.display = 'none';
+                    if (downloadText) downloadText.textContent = 'Generating (no logo)...';
+                    const canvas = await html2canvas(receiptCard, { scale: 2, useCORS: false, allowTaint: false, backgroundColor: '#ffffff', logging: false });
+                    if (logoImg) logoImg.style.display = logoDisplay;
+                    const link = document.createElement('a');
+                    link.download = `DGC-Receipt-${currentOrderId || 'order'}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    showToast('Receipt downloaded (text only)', 'success');
+                } catch (err) {
+                    showToast('Download failed. Please screenshot instead.', 'error');
+                    if (logoImg) logoImg.style.display = '';
+                }
+            };
+            processDownload();
+        }
+
+        document.getElementById('topCustomersModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTopCustomers(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') processOrder();
+            if (e.key === 'Escape') closeTopCustomers();
+        });
+    </script>
+</body>
+</html>

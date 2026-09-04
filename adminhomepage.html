@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manager Julie | Homepage</title>
+
+<!-- FAVICON -->
+<link rel="icon" type="image/png" sizes="64x64" href="adminfavicon.ico">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root{
+  --pink:#ff4fa3;
+  --pink-light:#ff7bbf;
+  --glass-bg:rgba(255,123,191,.18);
+  --text-main:#ffffff;
+}
+
+/* RESET */
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI";
+  background:url("adminbackground.png") center/cover fixed no-repeat;
+  color:var(--text-main);
+}
+
+a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent}
+a:focus,a:active{outline:none}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:rgba(255,79,163,.15)}
+::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#ff4fa3,#ff7bbf);
+  border-radius:10px;
+}
+
+/* LOADER */
+#loader{
+  position:fixed;
+  inset:0;
+  background:var(--pink-light);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  transition:.4s ease;
+}
+#loader.fade-out{opacity:0;visibility:hidden}
+
+.loader-content{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.loader-content img{width:190px;margin-bottom:18px}
+
+.arc-spinner{
+  width:38px;height:38px;border-radius:50%;
+  border:4px solid rgba(255,255,255,.25);
+  border-top-color:#fff;
+  border-left-color:transparent;
+  border-bottom-color:transparent;
+  animation:spin .65s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* HEADER */
+header{
+  position:sticky;top:0;z-index:1000;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 26px;
+  backdrop-filter:blur(18px);
+  background:linear-gradient(270deg,#ff4fa3,#ff7bbf,#ffb3d9);
+  background-size:400% 400%;
+  animation:flow 12s ease infinite;
+}
+@keyframes flow{
+  0%{background-position:0%}
+  50%{background-position:100%}
+  100%{background-position:0%}
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.header-left img{height:46px}
+
+/* MOTTO */
+.motto{
+  font-size:18px;
+  font-weight:600;
+  font-style:italic;
+  letter-spacing:.6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
+.motto i{
+  opacity:.95;
+  font-size:17px;
+}
+
+/* ICONS */
+.header-icons{display:flex;align-items:center}
+
+.header-icons a{
+  width:42px;height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  margin-left:10px;
+  transition:.3s;
+  position:relative;
+}
+
+.header-icons i{font-size:18px}
+.header-icons a:hover{box-shadow:0 0 14px rgba(255,79,163,.8)}
+.header-icons a.active{animation:pulse 1.8s infinite}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 0 rgba(255,79,163,.8)}
+  70%{box-shadow:0 0 22px rgba(255,79,163,1)}
+  100%{box-shadow:0 0 0 rgba(255,79,163,.6)}
+}
+
+/* SEARCH */
+.search-box{position:relative}
+.search-input{
+  position:absolute;
+  right:50px;
+  top:50%;
+  transform:translateY(-50%);
+  width:0;
+  opacity:0;
+  padding:8px 14px;
+  border-radius:20px;
+  border:none;
+  transition:.35s;
+}
+.search-box.active .search-input{
+  width:220px;
+  opacity:1;
+}
+
+/* BADGE */
+.badge{
+  position:absolute;
+  top:4px;right:4px;
+  background:#ff003c;
+  color:#fff;
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:50%;
+}
+
+/* NOTIF WIGGLE + GLOW */
+@keyframes wiggleGlow {
+  0% { transform: rotate(0deg); text-shadow: 0 0 2px #ff4fa3; }
+  15% { transform: rotate(15deg); text-shadow: 0 0 6px #ff7bbf; }
+  30% { transform: rotate(-15deg); text-shadow: 0 0 6px #ff4fa3; }
+  45% { transform: rotate(10deg); text-shadow: 0 0 6px #ff7bbf; }
+  60% { transform: rotate(-10deg); text-shadow: 0 0 6px #ff4fa3; }
+  75% { transform: rotate(5deg); text-shadow: 0 0 6px #ff7bbf; }
+  100% { transform: rotate(0deg); text-shadow: 0 0 2px #ff4fa3; }
+}
+
+.wiggleGlow {
+  animation: wiggleGlow 0.8s ease-in-out infinite;
+}
+</style>
+</head>
+
+<body>
+
+<!-- AUDIO -->
+<audio id="bgMusic" src="coffee.mp3" loop></audio>
+<audio id="notifSound" src="notification.mp3" loop></audio>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-content">
+    <img src="adminlogo.png">
+    <div class="arc-spinner"></div>
+  </div>
+</div>
+
+<header>
+  <div class="header-left">
+    <a href="admindashboard.html"><img src="adminlogo.png"></a>
+    <div class="motto" id="motto"></div>
+  </div>
+
+  <div class="header-icons">
+    <div class="search-box" id="searchBox">
+      <a id="searchBtn"><i class="fas fa-magnifying-glass"></i></a>
+      <input id="searchInput" class="search-input" placeholder="Search pages...">
+    </div>
+
+    <a href="adminvsquadslot.html"><i class="fas fa-ranking-star"></i></a>
+    <a href="admintournamentdashboard.html"><i class="fas fa-trophy"></i></a>
+    <a href="admincalendar.html"><i class="fas fa-calendar"></i><span class="badge" id="calendarBadge">1</span></a>
+    <a href="admingiftingordersummary.html"><i class="fas fa-gift"></i></a>
+    <a href="admintlobbyproductupdate.html"><i class="fas fa-users"></i></a>
+
+    <a id="musicToggle"><i class="fas fa-music"></i></a>
+
+    <a id="notifBtn" href="ordersummary.html">
+      <i class="fas fa-bell"></i>
+      <span class="badge" id="notifBadge">1</span>
+    </a>
+
+    <a id="logoutBtn"><i class="fas fa-right-from-bracket"></i></a>
+  </div>
+</header>
+
+<script>
+/* LOADER */
+window.addEventListener("load",()=>{
+  setTimeout(()=>loader.classList.add("fade-out"),250)
+})
+
+/* MOTTO */
+const titles=[
+ ['fas fa-bolt','Alam kong kaya mo yan Julie, Magiging Successful ka'],
+ ['fas fa-crown','You are a beautiful QUEEN JULIE'],
+ ['fas fa-money-bill','Yayaman ka Julie'],
+ ['fas fa-heart','I Love you Julie']
+]
+const t=titles[Math.random()*titles.length|0]
+motto.innerHTML=`<i class="${t[0]}"></i>${t[1]}`
+
+/* SEARCH */
+searchBtn.onclick=()=>{
+  searchBox.classList.toggle("active")
+  searchInput.focus()
+}
+
+const pages=[
+ "admindashboard.html",
+ "admintournamentdashboard.html",
+ "admincalendar.html",
+ "ordersummary.html",
+ "admintlobbyproductupdate.html",
+ "adminlogin.html"
+]
+
+searchInput.onkeydown=e=>{
+  if(e.key==="Enter"){
+    const f=pages.find(p=>p.includes(searchInput.value.toLowerCase()))
+    if(f) location.href=f
+  }
+}
+
+/* MUSIC */
+let musicOn=false
+musicToggle.onclick=()=>{
+  musicOn=!musicOn
+  musicOn ? bgMusic.play() : bgMusic.pause()
+}
+
+/* NOTIFICATION */
+let vibInterval
+
+// Bell icon
+const notifIcon = document.querySelector("#notifBtn i");
+const notifBadge = document.getElementById("notifBadge");
+if(notifBadge){
+  notifSound.play()
+  notifIcon.classList.add("wiggleGlow")
+  if("vibrate" in navigator){
+    vibInterval=setInterval(()=>{navigator.vibrate([300,100,300,100,600])},2000)
+  }
+}
+document.querySelector("#notifBtn").onclick=()=>{
+  notifSound.pause()
+  clearInterval(vibInterval)
+  if(notifBadge) notifBadge.remove()
+  notifIcon.classList.remove("wiggleGlow")
+}
+
+// Calendar icon
+const calendarIcon = document.querySelector("#admincalendar i");
+const calendarBadge = document.getElementById("calendarBadge");
+if(calendarBadge){
+  notifSound.play()
+  calendarIcon.classList.add("wiggleGlow")
+}
+document.querySelector("a[href='admincalendar.html']").onclick=()=>{
+  calendarIcon.classList.remove("wiggleGlow")
+  if(calendarBadge) calendarBadge.remove()
+  notifSound.pause()
+  notifSound.currentTime = 0
+}
+
+/* LOGOUT */
+logoutBtn.onclick=()=>{
+  localStorage.clear()
+  sessionStorage.clear()
+  location.href="adminlogin.html"
+}
+</script>
+
+</body>
+</html>
