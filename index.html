@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +14,7 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 
 
 <style>
@@ -295,6 +295,8 @@ font-weight:600;text-transform:uppercase;letter-spacing:0.5px;
 .product-info h4 .order-type-badge.skin{background:var(--skin-purple);color:#fff}
 .product-info h4 .order-type-badge.diamonds{background:var(--pink);color:#fff}
 .product-info h4 .order-type-badge.squad{background:var(--teal-deep);color:var(--gold-base)}
+.product-info h4 .order-type-badge.lobby{background:#2ed573;color:#fff}
+.product-info h4 .order-type-badge.other{background:#ff4757;color:#fff}
 .product-info span{font-size:12px;color:var(--pink-light);display:flex;align-items:center;gap:6px}
 .order-customer{display:flex;align-items:center;gap:10px}
 .customer-avatar{
@@ -343,7 +345,11 @@ padding:8px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transfor
 .receipt-row-dg{display:flex;justify-content:space-between;align-items:center;margin:10px 0;font-size:14px;color:#555;font-family:'Inter',sans-serif;}
 .receipt-row-dg b{color:#0f172a;font-weight:600;font-size:14px;}
 .receipt-row-dg.discount-dg{color:#00d084;font-weight:600}
-.receipt-row-dg.original-price-dg{text-decoration:line-through;opacity:0.6;font-size:13px}
+.receipt-row-dg.original-price-dg{text-decoration:line-through;opacity:0.85;font-size:13px}
+.receipt-admin-note-dg{margin:14px 0;padding:12px 14px;background:linear-gradient(135deg,#fffdf6 0%,#fbf3dc 100%);border:1px solid rgba(212,175,55,.4);border-left:4px solid var(--gold-base);border-radius:10px;box-shadow:0 4px 14px rgba(212,175,55,.08),inset 0 0 22px rgba(212,175,55,.05);}
+.receipt-admin-note-dg b{color:#9a7a16!important;font-weight:600!important;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;font-size:11px;letter-spacing:.5px;text-transform:uppercase;}
+.receipt-admin-note-dg span{color:#7a6516!important;font-weight:400;font-size:13px;font-style:italic;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;}
+
 .receipt-divider-dg{border:none;border-top:2px dashed #e0e0e0;margin:16px 0;position:relative}
 .receipt-divider-dg::before,.receipt-divider-dg::after{content:'';position:absolute;top:-10px;width:20px;height:20px;background:#f0f4f8;border-radius:50%;}
 .receipt-divider-dg::before{left:-30px}
@@ -355,8 +361,8 @@ padding:8px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transfor
 .receipt-badge-dg.pending-dg{background:linear-gradient(135deg,#ff6b35 0%,#ff8c42 100%);box-shadow:0 4px 12px rgba(255,107,53,0.3)}
 .receipt-badge-dg.processing-dg{background:linear-gradient(135deg,#f39c12 0%,#f1c40f 100%);box-shadow:0 4px 12px rgba(243,156,18,0.3)}
 .receipt-badge-dg.cancelled-dg{background:linear-gradient(135deg,#e74c3c 0%,#c0392b 100%);box-shadow:0 4px 12px rgba(231,76,60,0.3)}
-.receipt-barcode-dg{background:#fff;padding:12px;border-radius:12px;margin:16px 0;border:1px solid #eee;text-align:center;}
-.receipt-barcode-dg svg{width:100%;height:60px}
+.receipt-barcode-dg{background:transparent;padding:8px 0 2px;border-radius:0;margin:16px 0 4px;border:0;text-align:center;overflow:hidden;}
+.receipt-barcode-dg svg{display:block;width:100%;height:58px;margin:0 auto;background:transparent;}
 .receipt-footer-dg{text-align:center;padding:20px 24px 24px;background:linear-gradient(180deg,#fafafa 0%,#f0f4f8 100%);border-top:1px solid #eee;}
 .receipt-footer-dg b{display:block;color:var(--teal-deep);font-size:14px;letter-spacing:2px;margin-bottom:16px;font-weight:800;text-transform:uppercase;}
 .receipt-actions-dg{display:flex;flex-direction:column;gap:8px}
@@ -686,17 +692,19 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 .certificate-modal-overlay.active{display:flex}
 .certificate-modal{background:linear-gradient(135deg,#fdfcf8 0%,#f7f4ed 50%,#fdfcf8 100%);width:100%;max-width:800px;border-radius:2px;overflow:hidden;box-shadow:0 30px 120px rgba(0,0,0,0.45),0 0 0 4px rgba(212,175,55,0.5),inset 0 0 80px rgba(212,175,55,0.06);position:relative;transform:scale(0.92);transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);margin:auto;border:3px solid var(--gold-base);}
 .certificate-modal-overlay.active .certificate-modal{transform:scale(1)}
-.cert-border{position:absolute;inset:14px;border:2px solid var(--gold-base);pointer-events:none;z-index:1;border-radius:0;}
-.cert-border-inner{position:absolute;inset:20px;border:1px dashed var(--teal-light);pointer-events:none;z-index:1;border-radius:0;}
-.certificate-header{background:linear-gradient(135deg,#072e33 0%,var(--teal-deep) 40%,#147a85 100%);color:var(--gold-base);text-align:center;padding:55px 30px 45px;position:relative;overflow:hidden;border-bottom:4px solid var(--gold-base);}
+.cert-border{position:absolute;inset:14px;border:2px solid var(--gold-base);pointer-events:none;z-index:4;border-radius:0;}
+.cert-border-inner{position:absolute;inset:20px;border:1px dashed var(--teal-light);pointer-events:none;z-index:4;border-radius:0;}
+.cert-frame{position:relative;}
+.certificate-header{background:linear-gradient(135deg,var(--teal-deep) 0%,var(--teal-light) 100%);color:#fff;display:flex;align-items:center;justify-content:center;padding:28px 24px;position:relative;overflow:hidden;border-bottom:4px solid var(--gold-base);}
 .certificate-header::before{content:'';position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:radial-gradient(circle,rgba(212,175,55,0.12) 0%,transparent 65%);animation:shimmerRotate 8s linear infinite;}
 .certificate-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(to top,rgba(7,46,51,0.3),transparent);}
-.certificate-header img{height:85px;width:auto;margin-bottom:18px;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.4));position:relative;z-index:2;}
-.certificate-header h2{font-size:38px;font-weight:800;margin-bottom:10px;position:relative;z-index:2;text-transform:uppercase;letter-spacing:6px;text-shadow:0 3px 12px rgba(0,0,0,0.35);font-family:'Georgia','Times New Roman',serif;}
+.certificate-header img{height:70px;width:auto;display:block;margin:0;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.4));position:relative;z-index:2;}
+.certificate-header h2{font-size:0;font-weight:800;margin-bottom:10px;position:relative;z-index:2;text-transform:uppercase;letter-spacing:6px;text-shadow:0 3px 12px rgba(0,0,0,0.35);font-family:'Georgia','Times New Roman',serif;}
 .certificate-header p{font-size:15px;opacity:0.9;position:relative;z-index:2;font-weight:500;letter-spacing:3px;text-transform:uppercase;}
 .cert-body{padding:55px 50px 45px;text-align:center;position:relative;z-index:2;background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230d5d65' fill-opacity='0.025'%3E%3Cpath d='M40 40v-2h-2v2h-2v2h2v2h2v-2h2v-2h-2zm0-40V0h-2v2h-2v2h2v2h2V4h2V2h-2zM0 40v-2H-2v2h-2v2h2v2h2v-2h2v-2h-2zM0 0V-2h-2v2h-2v2h2v2h2V4h2V2h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
 .cert-presented{font-size:16px;color:var(--teal-deep);margin-bottom:12px;font-weight:600;letter-spacing:4px;text-transform:uppercase;opacity:0.85;}
-.cert-recipient{font-size:58px;font-weight:800;background:linear-gradient(135deg,var(--teal-deep) 0%,var(--gold-base) 50%,#b8941f 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:28px 0;font-family:'Georgia','Times New Roman',serif;letter-spacing:1px;line-height:1.1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.08));}
+.cert-title-premium{font-size:31px;font-weight:900;color:var(--teal-deep);letter-spacing:4px;text-transform:uppercase;font-family:Georgia,"Times New Roman",serif;margin:10px 0 22px;text-shadow:0 2px 8px rgba(212,175,55,.18)}
+.cert-title-premium i{color:var(--gold-base);margin-right:8px}.cert-recipient{font-size:58px;font-weight:800;background:linear-gradient(135deg,var(--teal-deep) 0%,var(--gold-base) 50%,#b8941f 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:28px 0;font-family:'Georgia','Times New Roman',serif;letter-spacing:1px;line-height:1.1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.08));}
 .cert-divider{width:140px;height:3px;background:linear-gradient(90deg,transparent,var(--gold-base),transparent);margin:28px auto;border-radius:2px;position:relative;}
 .cert-divider::before,.cert-divider::after{content:'◆';position:absolute;top:50%;transform:translateY(-50%);color:var(--gold-base);font-size:10px;}
 .cert-divider::before{left:-16px}
@@ -710,13 +718,30 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 .cert-stat-label{font-size:11px;color:var(--teal-light);text-transform:uppercase;letter-spacing:1.5px;margin-top:6px;font-weight:700;}
 .cert-footer{background:linear-gradient(180deg,#f8f9fa 0%,#eef2f5 100%);padding:35px 30px 30px;text-align:center;border-top:2px solid var(--gold-base);position:relative;z-index:2;}
 .cert-footer p{color:var(--teal-deep);font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;opacity:0.9;}
-.cert-seal{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e8c547 0%,var(--gold-base) 40%,#b8941f 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;box-shadow:0 10px 40px rgba(212,175,55,0.35),inset 0 -4px 12px rgba(0,0,0,0.15);border:5px double #fff;position:relative;}
-.cert-seal::before{content:'';position:absolute;inset:6px;border:1px dashed rgba(255,255,255,0.6);border-radius:50%;}
-.cert-seal i{color:#fff;font-size:42px;text-shadow:0 2px 4px rgba(0,0,0,0.2);}
+.cert-signature-box{width:min(420px,100%);margin:0 auto 22px;padding:14px 22px 16px;background:linear-gradient(135deg,#fffdf5 0%,#f5efe0 100%);border:2px solid var(--gold-base);box-shadow:0 8px 26px rgba(212,175,55,.18),inset 0 0 0 4px rgba(255,255,255,.8);position:relative;}
+.cert-signature-box::before{content:'';position:absolute;inset:5px;border:1px solid rgba(13,93,101,.35);pointer-events:none;}
+.cert-signature-check{position:relative;z-index:1;width:46px;height:46px;margin:0 auto 7px;border:2px solid var(--gold-base);display:flex;align-items:center;justify-content:center;color:var(--gold-base);background:#fff;font-size:20px;}
+.cert-founder-name{position:relative;z-index:1;font-family:Georgia,"Times New Roman",serif;font-size:27px;font-weight:800;color:var(--teal-deep);letter-spacing:2px;}
+.cert-founder-role{position:relative;z-index:1;margin-top:4px;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#9a7a16;}
 .cert-close{position:absolute;top:18px;right:18px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.4);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all 0.3s;z-index:10;}
 .cert-close:hover{background:#fff;color:var(--teal-deep);transform:rotate(90deg);border-color:#fff;}
 .cert-download-btn{width:100%;padding:14px 20px;border-radius:12px;border:2px solid var(--teal-light);background:transparent;color:var(--teal-deep);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:10px;text-transform:uppercase;letter-spacing:1px;margin-top:12px;}
 .cert-download-btn:hover{background:linear-gradient(135deg,var(--teal-light) 0%,var(--teal-deep) 100%);color:#fff;border-color:transparent;box-shadow:0 8px 25px rgba(13,93,101,0.25);}
+/* ===== CERTIFICATE SIGN-OFF ROW (date left . logo middle . signature right) ===== */
+.cert-signoff-row{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:18px;}
+.cert-date-box{flex:1 1 160px;text-align:center;}
+.cert-date-label{font-size:11px;color:var(--teal-light);text-transform:uppercase;letter-spacing:2px;font-weight:700;}
+.cert-date-value{font-family:Georgia,'Times New Roman',serif;font-size:17px;color:var(--teal-deep);font-weight:700;margin-top:5px;}
+.cert-date-line{width:100%;max-width:190px;height:1px;background:linear-gradient(90deg,var(--gold-base),transparent);margin:7px auto 0;}
+.cert-logo-box{flex:0 0 auto;text-align:center;}
+.cert-logo-box img{height:58px;width:auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.25));}
+.cert-signature-area{flex:1 1 180px;text-align:center;}
+.signature-font{font-family:'Great Vibes',cursive;}
+.cert-signature-area .cert-founder-name{font-size:44px;font-weight:400;color:var(--teal-deep);line-height:1;}
+.cert-sign-line{width:200px;max-width:100%;height:1px;background:var(--teal-deep);margin:8px auto 5px;}
+.cert-award-btn{background:rgba(212,175,55,0.15);border:none;color:#9a7a16;width:28px;height:28px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;}
+.cert-award-btn:hover{background:var(--gold-base);color:#fff;}
+@media(max-width:640px){.cert-signoff-row{flex-direction:column;align-items:center;gap:16px;}.cert-date-box{text-align:center;}.cert-date-line{margin-left:auto;margin-right:auto;}}
 @media print{.cert-close{display:none !important;}}
 /* ===== PRODUCTS DASHBOARD (NEW EXCEL-STYLE) ===== */
 .dashboard-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);z-index:5000;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
@@ -830,8 +855,47 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 .poster-perks div{margin-bottom:6px;}
 .poster-perks i{color:var(--gold-base);margin-right:6px;}
 .poster-foot{margin-top:18px;font-size:12px;opacity:0.85;letter-spacing:1px;border-top:1px solid rgba(212,175,55,0.4);padding-top:14px;}
+
+/* ===== REWARDS CENTER / WHEEL / QUOTAS ===== */
+.rewards-modal-overlay{position:fixed;inset:0;background:rgba(7,46,51,.78);backdrop-filter:blur(14px);z-index:5700;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.rewards-modal-overlay.active{display:flex}
+.rewards-modal{width:100%;max-width:1050px;max-height:94vh;overflow:hidden;background:#fff;border-radius:26px;box-shadow:0 30px 120px rgba(0,0,0,.45);border:2px solid rgba(212,175,55,.45)}
+.rewards-head{background:linear-gradient(135deg,#072e33 0%,var(--teal-deep) 55%,var(--teal-light) 100%);color:#fff;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:3px solid var(--gold-base)}
+.rewards-head h3{font-size:22px;font-weight:800;display:flex;align-items:center;gap:10px}
+.rewards-head h3 i{color:var(--gold-base)}
+.rewards-close{width:38px;height:38px;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-size:16px}
+.rewards-body{padding:22px;overflow:auto;max-height:calc(94vh - 85px)}
+.rewards-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.rewards-tab{border:1px solid rgba(13,93,101,.15);background:#f8fbfb;color:var(--teal-deep);padding:11px 16px;border-radius:14px;font-weight:800;cursor:pointer}
+.rewards-tab.active{background:linear-gradient(135deg,var(--teal-light),var(--teal-deep));color:#fff;border-color:transparent;box-shadow:0 5px 18px rgba(13,93,101,.25)}
+.reward-panel{display:none}.reward-panel.active{display:block}
+.reward-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:20px}
+@media(max-width:820px){.reward-grid{grid-template-columns:1fr}}
+.reward-card{background:linear-gradient(135deg,#fdfcf8,#f4f9f8);border:1px solid rgba(212,175,55,.25);border-radius:20px;padding:20px}
+.reward-card h4{color:var(--teal-deep);font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.reward-card h4 i{color:var(--gold-base)}
+.wheel-wrap{text-align:center;padding:8px}
+.wheel{width:min(320px,72vw);height:min(320px,72vw);max-width:320px;max-height:320px;border-radius:50%;margin:10px auto 18px;border:8px solid #fff;box-shadow:0 12px 40px rgba(13,93,101,.28),0 0 0 4px var(--gold-base);position:relative;overflow:hidden;background:conic-gradient(#0d5d65 0 45deg,#d4af37 45deg 90deg,#147a85 90deg 135deg,#f7d774 135deg 180deg,#0a4a52 180deg 225deg,#e8c547 225deg 270deg,#147a85 270deg 315deg,#b8941f 315deg 360deg);transition:transform 4s cubic-bezier(.12,.75,.14,1)}
+.wheel::after{content:"";position:absolute;inset:16%;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(212,175,55,.7);z-index:2}
+.wheel-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:4;color:var(--teal-deep);font-weight:900;font-size:14px;text-transform:uppercase;letter-spacing:1px}
+.wheel-pointer{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:28px solid var(--danger);margin:-8px auto 10px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));position:relative;z-index:5}
+.reward-list{max-height:300px;overflow:auto}
+.reward-history-item,.quota-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid #e9eeee;border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.reward-history-item strong,.quota-item strong{color:var(--teal-deep)}
+.reward-history-item small,.quota-item small{color:#777}
+.reward-pill{padding:5px 9px;border-radius:999px;background:#fff4c9;color:#8a6a00;font-size:11px;font-weight:800;white-space:nowrap}
+.quota-form{display:grid;grid-template-columns:1.5fr .6fr .7fr auto;gap:10px;align-items:end}
+@media(max-width:700px){.quota-form{grid-template-columns:1fr 1fr}.quota-form .full{grid-column:1/-1}}
+.reward-empty{text-align:center;padding:25px;color:#8a999b}
+.customer-reward-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:#fff4c9;color:#8a6a00;font-size:10px;font-weight:800}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<base target="_blank">
+<base target="_blank">
+<base target="_blank">
+<base target="_blank">
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 </head>
@@ -932,7 +996,7 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <div class="receipt-row-dg"><b>Payment Method</b><span id="receiptPayment">Loading...</span></div>
 <div class="receipt-row-dg original-price-dg" id="receiptOriginalRow" style="display:none;"><b>Original Price</b><span id="receiptOriginal">--</span></div>
 <div class="receipt-row-dg discount-dg" id="receiptDiscountRow" style="display:none;"><b>Discount</b><span id="receiptDiscount">--</span></div>
-<div class="receipt-row-dg" id="receiptAdminNoteRow" style="display:none;"><b>Admin Note</b><span id="receiptAdminNote">--</span></div>
+<div class="receipt-row-dg receipt-admin-note-dg" id="receiptAdminNoteRow" style="display:none;"><b><i class="fas fa-note-sticky"></i> Admin Note</b><span id="receiptAdminNote">--</span></div>
 <hr class="receipt-divider-dg">
 <div class="receipt-total-dg"><span>Total Amount</span><span id="receiptTotal">₱0.00</span></div>
 <div class="receipt-meta-dg">
@@ -1008,6 +1072,7 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <button onclick="openProductsDashboard()" title="Products • Sales • Inventory"><i class="fas fa-boxes-stacked"></i></button>
     <button onclick="openCustomersListModal()" title="View All Customers"><i class="fas fa-users"></i></button>
 <button onclick="openDiscountPosterBuilderModal()" title="Create Discount Poster"><i class="fas fa-bullhorn"></i></button>
+<button onclick="openRewardsCenter()" title="Wheel • Rewards • Quotas"><i class="fas fa-gift"></i></button>
 </div>
 </header>
 
@@ -1044,14 +1109,8 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <input type="text" class="form-input" id="newCustomerInput" placeholder="Enter new customer name">
 </div>
 <div class="form-group">
-<label class="form-label">Order Type *</label>
-<select class="form-select" id="orderTypeSelect">
-<option value="diamonds">💎 Diamonds</option>
-<option value="skin_gifting">🎨 Skin Gifting</option>
-<option value="squad">👥 V-Squad</option>
-<option value="tlobby">🏆 Tournament Lobby</option>
-<option value="other">🎮 Other Games</option>
-</select>
+<label class="form-label">Order Type / Category * <span style="color:var(--pink-light);font-size:11px;">(same sa Products categories)</span></label>
+<select class="form-select" id="orderTypeSelect"></select>
 </div>
 <div class="form-group">
 <label class="form-label">Order Item *</label>
@@ -1083,13 +1142,10 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 </div>
 <div class="form-group">
 <label class="form-label">Payment Method</label>
-<select class="form-select" id="paymentMethod">
-<option value="GCash">GCash</option>
-<option value="Maya">Maya</option>
-<option value="Bank Transfer">Bank Transfer</option>
-<option value="Cash">Cash</option>
-<option value="Other">Other</option>
-</select>
+<div style="display:flex;gap:8px;">
+<select class="form-select" id="paymentMethod" style="flex:1;"></select>
+<button type="button" class="btn-secondary" style="padding:10px 14px;border-radius:12px;" onclick="openPaymentMethodsModal()" title="Edit / add / delete payment methods"><i class="fas fa-gear"></i></button>
+</div>
 </div>
 <div class="form-group">
 <label class="form-label">Reminder Date</label>
@@ -1183,26 +1239,7 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 </div>
 
 
-<div class="type-filter-bar">
-<button class="type-filter-btn active" data-type="all">
-<i class="fas fa-th-large"></i> All Types
-</button>
-<button class="type-filter-btn" data-type="diamonds">
-<i class="fas fa-gem"></i> Diamonds
-</button>
-<button class="type-filter-btn skin-gifting" data-type="skin_gifting">
-<i class="fas fa-paint-brush"></i> Skin Gifting
-</button>
-<button class="type-filter-btn" data-type="squad">
-<i class="fas fa-users"></i> V-Squad
-</button>
-<button class="type-filter-btn" data-type="tlobby" style="color:#2ed573;">
-<i class="fas fa-trophy"></i> T-Lobby
-</button>
-<button class="type-filter-btn" data-type="other" style="color:#ff4757;">
-<i class="fas fa-gamepad"></i> Other Games
-</button>
-</div>
+<div class="type-filter-bar" id="typeFilterBar"></div>
 
 
 <div class="orders-container">
@@ -1339,6 +1376,9 @@ initBroadcastChannel();
 initFirebase();
 loadCustomersDB();
 renderCustomerSelect();
+renderCategorySelects();
+renderPaymentMethodSelect();
+renderTypeFilterBar();
 document.getElementById('customerSelect').addEventListener('change', function() {
 const customer = customersDB.find(c => c.name === this.value);
 if (customer) {
@@ -1355,10 +1395,7 @@ const pasteInput = document.getElementById('pasteInput');
 pasteInput.addEventListener('paste', () => setTimeout(autoParsePaste, 50));
 pasteInput.addEventListener('input', debounce(autoParsePaste, 400));
 document.addEventListener('click', initAudioContext, { once: true });
-// Set default deadline to tomorrow
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-document.getElementById('orderDeadline').value = tomorrow.toISOString().split('T')[0];
+// Reminder date stays blank unless the admin explicitly enters one.
 // Start deadline checker
 setInterval(checkDeadlines, 60000);
 checkDeadlines();
@@ -1431,9 +1468,73 @@ db = firebase.database();
 emailjs.init("r8iqfxlI8fiB36KUY");
 startOrdersListener();
 startSkinGiftingListener();
+startManagerDataSync();
 } else {
 showToast('Firebase not loaded', 'error');
 }
+}
+
+
+// ===== CROSS-DEVICE SYNC (Firebase) — Customers / Categories / Products / Payment Methods / Rewards =====
+// Orders are already in Firebase. Ito naman ang dating localStorage-only data
+// para mag-sync sa KAHIT ANG DEVICE / browser / Gmail — isa na lang ang data.
+let managerSyncWriting = false;
+function syncManagerData(key, value) {
+  if (!db) return;
+  managerSyncWriting = true;
+  db.ref('managerData/' + key).set(value)
+    .catch(() => {})
+    .then(() => { setTimeout(() => { managerSyncWriting = false; }, 400); });
+}
+function startManagerDataSync() {
+  if (!db) return;
+  db.ref('managerData').on('value', (snapshot) => {
+    if (managerSyncWriting) return;
+    const data = snapshot.val();
+    if (data === null) {
+      // First run on this database — i-seed ang Firebase gamit ang existing local data
+      syncManagerData('customers', customersDB);
+      syncManagerData('categories', getCategories());
+      syncManagerData('paymentMethods', getPaymentMethods());
+      syncManagerData('products', productPriceList);
+      syncManagerData('rewardRules', rewardRules);
+      return;
+    }
+    let changed = false;
+    const apply = (remote, storageKey, applyFn) => {
+      if (!Array.isArray(remote)) return;
+      const remoteJson = JSON.stringify(remote);
+      if (localStorage.getItem(storageKey) === remoteJson) return;
+      localStorage.setItem(storageKey, remoteJson);
+      applyFn(remote);
+      changed = true;
+    };
+    apply(data.customers, 'dgc_customers_db', (arr) => {
+      customersDB = arr;
+      renderCustomerSelect();
+      updateTopCustomer();
+    });
+    apply(data.categories, 'dgc_categories', () => {
+      renderCategorySelects();
+      renderTypeFilterBar();
+      renderProductsPanel();
+    });
+    apply(data.paymentMethods, 'dgc_payment_methods', () => {
+      renderPaymentMethodSelect();
+    });
+    apply(data.products, 'dgc_product_pricelist', (arr) => {
+      productPriceList = arr;
+      renderProductsPanel();
+      renderInventoryPanel();
+    });
+    apply(data.rewardRules, 'dgc_reward_quota_rules', (arr) => {
+      rewardRules = arr;
+      renderQuotaRules();
+      renderCustomerQuotaRecords();
+      renderRewardHistory();
+    });
+    if (changed) showSyncIndicator('Data synced — same data on all devices');
+  }, (error) => { console.log('managerData sync error:', error); });
 }
 
 
@@ -1446,6 +1547,9 @@ return allowed.includes(normalized) ? normalized : 'pending';
 
 
 function detectOrderType(order) {
+// Custom categories (galing sa Categories manager) — i-trust ang id
+const knownTypes = ['skin_gifting','squad_rental','squad','diamonds','tlobby','other'];
+if (order.type && !knownTypes.includes(order.type)) return order.type;
 if (order.type === 'skin_gifting') return 'skin_gifting';
 if (order.type === 'squad_rental' || order.type === 'squad') return 'squad';
 if (order.type === 'diamonds') return 'diamonds';
@@ -1473,8 +1577,11 @@ if (orderType === 'skin_gifting') {
 return `<div class="product-img skin-gifting"><i class="fas fa-paint-brush"></i></div>`;
 } else if (orderType === 'squad') {
 return `<img src="verifiedsquadlogo.png" alt="Verified Squad" style="width:48px;height:48px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(255,79,163,0.3);">`;
-} else {
+} else if (orderType === 'diamonds') {
 return `<img src="diamondslogo.png" alt="Diamonds" style="width:48px;height:48px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(255,79,163,0.3);">`;
+} else {
+// Custom category — generic tag icon
+return `<div class="product-img"><i class="fas fa-tag"></i></div>`;
 }
 }
 
@@ -1488,7 +1595,10 @@ const badges = {
 'tlobby': '<span class="order-type-badge lobby"><i class="fas fa-trophy"></i> T-Lobby</span>',
 'other': '<span class="order-type-badge other"><i class="fas fa-gamepad"></i> Other</span>'
 };
-return badges[type] || '';
+if (badges[type]) return badges[type];
+const cat = getCategories().find(c => c.id === type);
+if (cat) return `<span class="order-type-badge diamonds"><i class="fas fa-tag"></i> ${escapeHtml(cat.label)}</span>`;
+return '';
 }
 
 
@@ -1579,14 +1689,8 @@ const gameId = isSkinGifting ? (data.uid || data.gameId || 'N/A') : (data.gameId
 const serverId = isSkinGifting ? (data.serverId || data.server || 'N/A') : (data.serverId || 'N/A');
 
 
-// Parse deadline
-let deadline = data.deadline || data.reservationDate || null;
-if (!deadline && data.createdAt) {
-// Default deadline: +24 hours from creation
-const d = new Date(data.createdAt);
-d.setDate(d.getDate() + 1);
-deadline = d.toISOString().split('T')[0];
-}
+// Reminder date is only the explicitly saved value. No automatic reminder.
+let deadline = data.deadline || null;
 
 
 return {
@@ -1641,6 +1745,7 @@ catch(e) { customersDB = []; }
 
 function saveCustomersDB() {
 localStorage.setItem('dgc_customers_db', JSON.stringify(customersDB));
+syncManagerData('customers', customersDB);
 }
 
 
@@ -1648,8 +1753,13 @@ function syncCustomersWithOrders() {
 const uniqueOrders = deduplicateOrders(allOrders);
 const orderCustomers = new Map();
 uniqueOrders.forEach(order => {
-const name = order.customerName || order.ign || 'Walk-in';
-const ign = order.ign || '';
+const entered = (order.enteredCustomerName || '').toString().trim();
+const custName = (order.customerName || '').toString().trim();
+const ign = (order.ign || '').toString().trim();
+// Walk-in kung walang TUNAY na customer name — ang IGN ay HINDI customer name
+let name = entered;
+if (!name && custName && custName !== 'Walk-in' && custName !== ign) name = custName;
+if (!name) return; // walk-in — hindi isasama sa customers list / certificate
 if (!orderCustomers.has(name)) {
 orderCustomers.set(name, { totalSpent: 0, orderCount: 0, completedCount: 0, firstPurchase: Infinity, ign: '' });
 }
@@ -1663,12 +1773,14 @@ c.completedCount++;
 }
 if (ign && ign !== name && !c.ign) c.ign = ign;
 });
+// I-reset stats at alisin ang walk-in / customers na walang orders
+customersDB.forEach(c => { c.totalSpent = 0; c.orderCount = 0; c.completedCount = 0; });
 orderCustomers.forEach((stats, name) => {
 let customer = customersDB.find(c => c.name === name || c.ign === name);
 if (!customer) {
 customer = {
 id: 'cust-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-name: name, ign: '', gameId: '', serverId: '',
+name: name, ign: stats.ign || '', gameId: '', serverId: '',
 firstPurchaseDate: stats.firstPurchase === Infinity ? null : stats.firstPurchase,
 birthday: '', socials: { facebook: '', instagram: '', tiktok: '', discord: '' },
 contact: { phone: '', email: '', gcash: '' }, notes: '',
@@ -1683,6 +1795,7 @@ if (stats.firstPurchase !== Infinity && !customer.firstPurchaseDate) customer.fi
 if (stats.ign && !customer.ign) customer.ign = stats.ign;
 }
 });
+customersDB = customersDB.filter(c => c.orderCount > 0);
 saveCustomersDB();
 }
 
@@ -2248,11 +2361,15 @@ renderCustomerSelect();
 }
 
 
-const cust = getOrCreateCustomer(customerName);
+// Customer record lang kung may TUNAY na customer name (hindi walk-in / IGN lang)
+const realCustomerName = (newCustomer || selectCustomer || '').trim();
+if (realCustomerName) {
+const cust = getOrCreateCustomer(realCustomerName);
 cust.ign = ign; cust.gameId = userID; cust.serverId = server;
 if (!cust.firstPurchaseDate) cust.firstPurchaseDate = now;
-cust.orderCount = (cust.orderCount || 0) + 1;
-saveCustomersDB(); updateTopCustomer();
+saveCustomersDB();
+}
+updateTopCustomer();
 
 
 if (bc) {
@@ -2286,12 +2403,10 @@ document.getElementById('orderUserID').value = '';
 document.getElementById('orderServer').value = '';
 document.getElementById('customerSelect').value = '';
 document.getElementById('newCustomerInput').value = '';
-document.getElementById('paymentMethod').value = 'GCash';
-document.getElementById('orderTypeSelect').value = 'diamonds';
+document.getElementById('paymentMethod').selectedIndex = 0;
+document.getElementById('orderTypeSelect').selectedIndex = 0;
 document.getElementById('orderNote').value = '';
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-document.getElementById('orderDeadline').value = tomorrow.toISOString().split('T')[0];
+document.getElementById('orderDeadline').value = '';
 }
 
 
@@ -2953,22 +3068,13 @@ renderOrders();
 });
 
 
-document.querySelectorAll('.type-filter-btn').forEach(btn => {
-btn.addEventListener('click', (e) => {
-document.querySelectorAll('.type-filter-btn').forEach(b => b.classList.remove('active'));
-e.currentTarget.classList.add('active');
-currentTypeFilter = e.currentTarget.dataset.type;
-selectedOrders.clear();
-renderOrders();
-});
-});
 
 
 function exportToExcel() {
 const uniqueOrders = deduplicateOrders(allOrders);
 if (uniqueOrders.length === 0) { showToast('No orders to export', 'error'); return; }
 const exportData = uniqueOrders.map(order => ({
-'Order ID': order.orderId, 'Type': order.orderType || 'diamonds',
+'Order ID': order.orderId, 'Type': getCategoryLabel(order.orderType),
 'Date': new Date(order.timestamp).toLocaleString('en-PH'), 'Customer': order.ign,
 'Email': order.customerEmail, 'Product': order.itemName, 'Quantity': order.quantity,
 'Amount': order.total || order.totalAmount || 0, 'Payment Method': order.paymentMethod,
@@ -2987,7 +3093,7 @@ showToast(`📊 Exported ${uniqueOrders.length} orders to Excel`);
 
 document.addEventListener('keydown', (e) => {
 if (e.key === 'Escape') {
-closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal();
+closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal(); closePaymentMethodsModal();
 }
 });
 
@@ -3177,6 +3283,179 @@ if (btn) { btn.innerHTML = '<i class="fas fa-download"></i> Download Receipt'; b
 
 
 
+// ===== DYNAMIC CATEGORIES (shared: Products / Order Type / filters) =====
+const defaultCategories = [
+{ id: 'diamonds', label: '💎 Diamonds' },
+{ id: 'skin_gifting', label: '🎨 Skin Gifting' },
+{ id: 'squad', label: '👥 V-Squad' },
+{ id: 'tlobby', label: '🏆 T-Lobby' },
+{ id: 'other', label: '🎮 Other Games' }
+];
+function getCategories() {
+try {
+const s = localStorage.getItem('dgc_categories');
+if (s) { const l = JSON.parse(s); if (Array.isArray(l) && l.length) return l; }
+} catch(e) {}
+return JSON.parse(JSON.stringify(defaultCategories));
+}
+function saveCategories(list) { localStorage.setItem('dgc_categories', JSON.stringify(list)); syncManagerData('categories', list); }
+function getCategoryLabel(id) {
+const c = getCategories().find(x => x.id === id);
+return c ? c.label : (id || '\u2014');
+}
+function getCategoryOptionsHTML(selected) {
+return getCategories().map(c => `<option value="${c.id}" ${c.id === selected ? 'selected' : ''}>${escapeHtml(c.label)}</option>`).join('');
+}
+function renderCategorySelects() {
+const cats = getCategories();
+const sel = document.getElementById('orderTypeSelect');
+if (sel) {
+const prev = sel.value;
+sel.innerHTML = cats.map(c => `<option value="${c.id}">${escapeHtml(c.label)}</option>`).join('');
+if (cats.some(c => c.id === prev)) sel.value = prev;
+}
+['dashboardCategoryFilter', 'dashboardInventoryCategoryFilter'].forEach(id => {
+const f = document.getElementById(id);
+if (!f) return;
+const prev = f.value;
+f.innerHTML = '<option value="all">All Categories</option>' + cats.map(c => `<option value="${c.id}">${escapeHtml(c.label)}</option>`).join('');
+f.value = (prev && (prev === 'all' || cats.some(c => c.id === prev))) ? prev : 'all';
+});
+}
+function renderTypeFilterBar() {
+const bar = document.getElementById('typeFilterBar');
+if (!bar) return;
+const cats = getCategories();
+if (currentTypeFilter !== 'all' && !cats.some(c => c.id === currentTypeFilter)) currentTypeFilter = 'all';
+bar.innerHTML = '<button class="type-filter-btn" data-type="all"><i class="fas fa-th-large"></i> All Types</button>' +
+cats.map(c => `<button class="type-filter-btn ${c.id === 'skin_gifting' ? 'skin-gifting' : ''}" data-type="${c.id}">${escapeHtml(c.label)}</button>`).join('');
+bar.querySelectorAll('.type-filter-btn').forEach(btn => {
+btn.addEventListener('click', (e) => {
+bar.querySelectorAll('.type-filter-btn').forEach(b => b.classList.remove('active'));
+e.currentTarget.classList.add('active');
+currentTypeFilter = e.currentTarget.dataset.type;
+selectedOrders.clear();
+renderOrders();
+});
+btn.classList.toggle('active', btn.dataset.type === currentTypeFilter);
+});
+}
+function renderCategoriesPanel() {
+const tbody = document.getElementById('dashboardCategoriesBody');
+if (!tbody) return;
+const cats = getCategories();
+productPriceList = getProductPriceList();
+tbody.innerHTML = cats.map(c => {
+const count = productPriceList.filter(p => p.category === c.id).length;
+return `<tr>
+<td><input type="text" value="${escapeHtml(c.label)}" onchange="renameCategory('${c.id}', this.value)"></td>
+<td>${count} product${count === 1 ? '' : 's'}</td>
+<td><div class="row-actions"><button class="btn-del" onclick="deleteCategory('${c.id}')" title="Delete"><i class="fas fa-trash"></i></button></div></td>
+</tr>`;
+}).join('') || '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--pink-light);font-style:italic;">No categories yet \u2014 add one below.</td></tr>';
+}
+function renameCategory(id, label) {
+label = (label || '').trim();
+if (!label) { renderCategoriesPanel(); return; }
+const cats = getCategories();
+const c = cats.find(x => x.id === id);
+if (c) { c.label = label; saveCategories(cats); afterCategoriesChanged(); showToast('Category updated'); }
+}
+function addCategoryFromInput() {
+const input = document.getElementById('newCategoryLabel');
+const label = (input.value || '').trim();
+if (!label) { showToast('Enter a category name', 'error'); return; }
+const cats = getCategories();
+cats.push({ id: 'cat-' + Date.now().toString(36), label: label });
+saveCategories(cats);
+input.value = '';
+afterCategoriesChanged();
+renderCategoriesPanel();
+showToast('Category added');
+}
+function deleteCategory(id) {
+const cats = getCategories();
+const c = cats.find(x => x.id === id);
+if (!c) return;
+const used = getProductPriceList().filter(p => p.category === id).length;
+if (used > 0) { showToast(`Cannot delete \u2014 ${used} product(s) still use "${c.label}"`, 'error'); return; }
+if (!confirm(`Delete category "${c.label}"?`)) return;
+saveCategories(cats.filter(x => x.id !== id));
+afterCategoriesChanged();
+renderCategoriesPanel();
+showToast('Category deleted');
+}
+function afterCategoriesChanged() {
+renderCategorySelects();
+renderTypeFilterBar();
+renderProductsPanel();
+}
+
+// ===== PAYMENT METHODS (editable / add / delete) =====
+const defaultPaymentMethods = ['GCash', 'Maya', 'Bank Transfer', 'Cash', 'Other'];
+function getPaymentMethods() {
+try {
+const s = localStorage.getItem('dgc_payment_methods');
+if (s) { const l = JSON.parse(s); if (Array.isArray(l) && l.length) return l; }
+} catch(e) {}
+return [...defaultPaymentMethods];
+}
+function savePaymentMethods(list) { localStorage.setItem('dgc_payment_methods', JSON.stringify(list)); syncManagerData('paymentMethods', list); }
+function renderPaymentMethodSelect() {
+const sel = document.getElementById('paymentMethod');
+if (!sel) return;
+const methods = getPaymentMethods();
+const prev = sel.value;
+sel.innerHTML = methods.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+if (methods.includes(prev)) sel.value = prev;
+}
+function openPaymentMethodsModal() {
+renderPaymentMethodsModal();
+document.getElementById('paymentMethodsModal').classList.add('active');
+}
+function closePaymentMethodsModal() {
+document.getElementById('paymentMethodsModal').classList.remove('active');
+}
+function renderPaymentMethodsModal() {
+const list = getPaymentMethods();
+document.getElementById('pmList').innerHTML = list.map((m, i) => `
+<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+<input type="text" class="form-input" value="${escapeHtml(m)}" onchange="renamePaymentMethod(${i}, this.value)">
+<button onclick="deletePaymentMethod(${i})" title="Delete" style="width:38px;height:38px;flex-shrink:0;border-radius:10px;border:none;background:rgba(255,71,87,0.12);color:var(--danger);cursor:pointer;"><i class="fas fa-trash"></i></button>
+</div>`).join('') || '<div style="text-align:center;color:var(--pink-light);padding:12px;font-style:italic;">No payment methods</div>';
+}
+function renamePaymentMethod(i, value) {
+value = (value || '').trim();
+if (!value) { renderPaymentMethodsModal(); return; }
+const list = getPaymentMethods();
+list[i] = value;
+savePaymentMethods(list);
+renderPaymentMethodSelect();
+showToast('Payment method updated');
+}
+function addPaymentMethodFromInput() {
+const input = document.getElementById('newPaymentMethodInput');
+const v = (input.value || '').trim();
+if (!v) { showToast('Enter a payment method name', 'error'); return; }
+const list = getPaymentMethods();
+list.push(v);
+savePaymentMethods(list);
+input.value = '';
+renderPaymentMethodsModal();
+renderPaymentMethodSelect();
+showToast('Payment method added');
+}
+function deletePaymentMethod(i) {
+const list = getPaymentMethods();
+if (list.length <= 1) { showToast('Keep at least one payment method', 'error'); return; }
+if (!confirm(`Delete "${list[i]}"?`)) return;
+list.splice(i, 1);
+savePaymentMethods(list);
+renderPaymentMethodsModal();
+renderPaymentMethodSelect();
+showToast('Payment method deleted');
+}
+
 // ===== PRODUCT PRICE LIST (EDITABLE — saved sa localStorage) =====
 const defaultProductPriceList = [
 { name: '11 Diamonds', cost: 10, price: 15, category: 'diamonds' },
@@ -3216,7 +3495,7 @@ list.forEach((p, i) => { if (!p.id) { p.id = 'p' + (i + 1); changed = true; } })
 if (changed) localStorage.setItem('dgc_product_pricelist', JSON.stringify(list));
 return list;
 }
-function saveProductPriceList(list) { localStorage.setItem('dgc_product_pricelist', JSON.stringify(list)); }
+function saveProductPriceList(list) { localStorage.setItem('dgc_product_pricelist', JSON.stringify(list)); syncManagerData('products', list); }
 let productPriceList = getProductPriceList();
 let editingProductId = null;
 
@@ -3225,7 +3504,9 @@ let editingProductId = null;
 function showTopCustomerCertificate(customerId) {
 const customer = customersDB.find(c => c.id === customerId);
 if (!customer) return;
-document.getElementById('certRecipientName').textContent = customer.name || customer.ign || 'Valued Customer';
+document.getElementById('certRecipientName').textContent = customer.name || 'Valued Customer';
+document.getElementById('certTitlePremium').innerHTML = '<i class="fas fa-crown"></i> TOP CUSTOMER AWARD';
+document.getElementById('certAchievement').innerHTML = 'For being our <strong>TOP 1 CUSTOMER</strong> with outstanding loyalty and support';
 document.getElementById('certTotalSpent').textContent = '₱' + (customer.totalSpent || 0).toLocaleString();
 document.getElementById('certOrderCount').textContent = customer.orderCount || 0;
 document.getElementById('certCompletedCount').textContent = customer.completedCount || 0;
@@ -3243,30 +3524,241 @@ function downloadCertificate() {
 const certModal = document.getElementById('certificateModal');
 const btn = certModal.querySelector('.cert-download-btn');
 const closeBtn = certModal.querySelector('.cert-close');
-if (btn) btn.style.display = 'none';
-if (closeBtn) closeBtn.style.display = 'none';
 if (!certModal || typeof html2canvas === 'undefined') {
 showToast('Certificate capture not available', 'error');
 if (btn) btn.style.display = '';
 if (closeBtn) closeBtn.style.display = '';
 return;
 }
-html2canvas(certModal, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false })
+// html2canvas HINDI kayang i-render ang gradient text (background-clip:text)
+// — pansamantalang gawing solid color para lumabas ang pangalan sa PNG
+const recipient = document.getElementById('certRecipientName');
+const prevStyle = recipient ? recipient.getAttribute('style') : null;
+if (recipient) {
+recipient.style.background = 'none';
+recipient.style.setProperty('-webkit-background-clip', 'initial', 'important');
+recipient.style.setProperty('background-clip', 'initial', 'important');
+recipient.style.setProperty('-webkit-text-fill-color', '#0d5d65', 'important');
+recipient.style.color = '#0d5d65';
+}
+if (btn) btn.style.display = 'none';
+if (closeBtn) closeBtn.style.display = 'none';
+html2canvas(certModal, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#fdfcf8', logging: false })
 .then(canvas => {
 const link = document.createElement('a');
 link.download = `Top-Customer-Certificate-${Date.now()}.png`;
 link.href = canvas.toDataURL('image/png');
 link.click();
 showToast('Certificate downloaded!');
+})
+.catch(err => showToast('Failed to download: ' + err.message, 'error'))
+.then(() => {
 if (btn) btn.style.display = '';
 if (closeBtn) closeBtn.style.display = '';
-}).catch(err => {
-showToast('Failed to download: ' + err.message, 'error');
-if (btn) btn.style.display = '';
-if (closeBtn) closeBtn.style.display = '';
+if (recipient) {
+if (prevStyle === null) recipient.removeAttribute('style');
+else recipient.setAttribute('style', prevStyle);
+}
 });
 }
 
+
+
+// ===== CUSTOMER REWARDS CENTER =====
+let rewardSpinLock = false;
+let rewardRules = loadRewardRules();
+
+function loadRewardRules(){
+try { const x=JSON.parse(localStorage.getItem('dgc_reward_quota_rules')||'[]'); return Array.isArray(x)?x:[]; } catch(e){ return []; }
+}
+function saveRewardRules(){ localStorage.setItem('dgc_reward_quota_rules', JSON.stringify(rewardRules)); syncManagerData('rewardRules', rewardRules); }
+
+function getCustomerRewards(customer){
+customer.rewards = Array.isArray(customer.rewards) ? customer.rewards : [];
+customer.quotaRecords = Array.isArray(customer.quotaRecords) ? customer.quotaRecords : [];
+return customer;
+}
+function saveRewardCustomers(){ saveCustomersDB(); }
+
+function openRewardsCenter(){
+document.getElementById('rewardsCenterOverlay').classList.add('active');
+const wa=document.getElementById('wheelWinnerActions'); if(wa) wa.innerHTML='';
+renderWheelCustomers(); renderQuotaRules(); renderCustomerQuotaRecords(); renderRewardHistory();
+}
+function closeRewardsCenter(){ document.getElementById('rewardsCenterOverlay').classList.remove('active'); }
+function switchRewardsTab(tab){
+document.querySelectorAll('.rewards-tab').forEach(b=>b.classList.toggle('active',b.dataset.rewardTab===tab));
+document.querySelectorAll('.reward-panel').forEach(p=>p.classList.remove('active'));
+const panel=document.getElementById('reward'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Panel');
+if(panel) panel.classList.add('active');
+if(tab==='wheel') renderWheelCustomers();
+if(tab==='quotas'){renderQuotaRules();renderCustomerQuotaRecords();}
+if(tab==='history') renderRewardHistory();
+}
+
+function getEligibleWheelCustomers(){
+return customersDB.filter(c => c && c.name && c.name.trim()).map(getCustomerRewards);
+}
+function renderWheelCustomers(){
+const list=document.getElementById('wheelCustomerList'); if(!list)return;
+const customers=getEligibleWheelCustomers();
+if(!customers.length){list.innerHTML='<div class="reward-empty"><i class="fas fa-users-slash"></i><br>No named customers yet.</div>';return;}
+list.innerHTML=customers.map((c,i)=>`<div class="reward-history-item"><div><strong>${escapeHtml(c.name)}</strong><br><small>${c.orderCount||0} orders · ₱${(c.totalSpent||0).toLocaleString()}</small></div><span class="reward-pill">${(c.rewards||[]).length} reward(s)</span></div>`).join('');
+}
+
+function spinCustomerWheel(){
+if(rewardSpinLock)return;
+const customers=getEligibleWheelCustomers();
+if(!customers.length){showToast('No named customers available for the wheel.','error');return;}
+const reward=(document.getElementById('wheelRewardInput').value||'Giveaway Reward').trim();
+rewardSpinLock=true;
+const winner=customers[Math.floor(Math.random()*customers.length)];
+const wheel=document.getElementById('fortuneWheel');
+const turns=6+Math.floor(Math.random()*4), angle=turns*360+Math.floor(Math.random()*360);
+wheel.style.transform=`rotate(${angle}deg)`;
+setTimeout(()=>{
+const c=customersDB.find(x=>x.id===winner.id); if(!c){rewardSpinLock=false;return;}
+getCustomerRewards(c);
+const entry={id:'rw-'+Date.now().toString(36),type:'wheel',reward:reward,source:'Wheel of Fortune',date:Date.now()};
+c.rewards.unshift(entry); saveRewardCustomers();
+document.getElementById('wheelCenterText').textContent=winner.name;
+renderWheelCustomers(); renderRewardHistory();
+document.getElementById('wheelWinnerActions').innerHTML =
+`<button class="cert-wheel-award-btn" onclick="showWheelCertificate('${winner.id}','${encodeURIComponent(reward)}')"><i class="fas fa-certificate"></i> Issue Winner Certificate</button>`;
+showToast(`🎉 ${winner.name} won ${reward}!`);
+rewardSpinLock=false;
+},4100);
+}
+
+function addQuotaRule(){
+const name=(document.getElementById('quotaName').value||'Quota').trim();
+const target=parseInt(document.getElementById('quotaTarget').value)||0;
+const rewardQty=parseInt(document.getElementById('quotaRewardQty').value)||0;
+if(!name||target<1||rewardQty<1){showToast('Enter a valid quota.','error');return;}
+rewardRules.unshift({id:'qr-'+Date.now().toString(36),name,target,rewardQty,active:true});
+saveRewardRules(); renderQuotaRules(); showToast(`${name}: buy ${target}, free ${rewardQty}`);
+}
+function removeQuotaRule(id){rewardRules=rewardRules.filter(r=>r.id!==id);saveRewardRules();renderQuotaRules();}
+function renderQuotaRules(){
+const box=document.getElementById('quotaRulesList'); if(!box)return;
+if(!rewardRules.length){box.innerHTML='<div class="reward-empty">No quota rules yet.</div>';return;}
+box.innerHTML=rewardRules.map(r=>`<div class="quota-item"><div><strong>${escapeHtml(r.name)}</strong><br><small>Buy ${r.target} → Free ${r.rewardQty}</small></div><div><span class="reward-pill">ACTIVE</span> <button class="note-delete" onclick="removeQuotaRule('${r.id}')" title="Remove"><i class="fas fa-trash"></i></button></div></div>`).join('');
+}
+
+function calculateCustomerQuotaRecords(){
+const orders=deduplicateOrders(allOrders).filter(o=>normalizeStatus(o.status)==='completed');
+return customersDB.map(c=>{
+getCustomerRewards(c);
+const customerOrders=orders.filter(o=>{
+const n=(o.enteredCustomerName||o.customerName||'').trim();
+return n && (n===c.name || n===c.ign);
+});
+const records=rewardRules.map(r=>{
+const ruleKey=(r.name||'').toLowerCase().replace(/promo|promotion|quota|milestone/g,'').trim();
+const qty=customerOrders.filter(o=>{const item=(o.itemName||'').toLowerCase();return item.includes((r.name||'').toLowerCase()) || (ruleKey && item.includes(ruleKey));}).reduce((s,o)=>s+(parseInt(o.quantity)||1),0);
+const cycles=Math.floor(qty/r.target);
+return {rule:r,qty,cycles,awarded:(c.quotaRecords||[]).filter(x=>x.ruleId===r.id).length};
+});
+return {customer:c,records};
+});
+}
+function renderCustomerQuotaRecords(){
+const box=document.getElementById('customerQuotaRecords'); if(!box)return;
+const rows=calculateCustomerQuotaRecords().flatMap(x=>x.records.filter(r=>r.qty>0).map(r=>({customer:x.customer, ...r})));
+if(!rows.length){box.innerHTML='<div class="reward-empty">No quota progress yet. Completed named-customer orders will appear here.</div>';return;}
+box.innerHTML=rows.map(x=>{
+const r=x.rule, earned=r.cycles>0;
+return `<div class="quota-item"><div><strong>${escapeHtml(x.customer.name)}</strong><br><small>${escapeHtml(r.rule.name)} · ${r.qty}/${r.rule.target} purchased · ${r.cycles} quota${r.cycles===1?'':'s'}</small></div><div>${earned?`<button class="btn btn-primary" style="padding:7px 11px;font-size:11px;" onclick="awardQuota('${x.customer.id}','${r.rule.id}')"><i class="fas fa-certificate"></i> ${r.awarded<r.cycles?'Award Free '+r.rule.rewardQty:'Awarded'}</button>`:`<span class="reward-pill">${Math.max(0,r.rule.target-r.qty)} to go</span>`}</div></div>`;
+}).join('');
+}
+function awardQuota(customerId,ruleId){
+const c=customersDB.find(x=>x.id===customerId), r=rewardRules.find(x=>x.id===ruleId); if(!c||!r)return;
+getCustomerRewards(c);
+const existing=(c.quotaRecords||[]).filter(x=>x.ruleId===ruleId).length;
+const orders=deduplicateOrders(allOrders).filter(o=>normalizeStatus(o.status)==='completed');
+const ruleKey=(r.name||'').toLowerCase().replace(/promo|promotion|quota|milestone/g,'').trim();
+const qty=orders.filter(o=>{const n=(o.enteredCustomerName||o.customerName||'').trim();const item=(o.itemName||'').toLowerCase();return (n===c.name||n===c.ign) && (item.includes((r.name||'').toLowerCase()) || (ruleKey && item.includes(ruleKey)));}).reduce((s,o)=>s+(parseInt(o.quantity)||1),0);
+const cycles=Math.floor(qty/r.target);
+if(existing>=cycles){showToast('That quota reward is already recorded.','error');return;}
+const record={id:'qrw-'+Date.now().toString(36),ruleId:r.id,quotaName:r.name,purchasedQty:r.target,rewardQty:r.rewardQty,source:'Quota Reward',date:Date.now()};
+c.quotaRecords.unshift(record);
+c.rewards.unshift({...record,type:'quota',reward:`FREE ${r.rewardQty} · ${r.name}`});
+saveRewardCustomers(); renderCustomerQuotaRecords(); renderRewardHistory();
+showQuotaCertificate(c,r,record);
+}
+function renderRewardHistory(){
+const box=document.getElementById('rewardHistoryList'); if(!box)return;
+const rows=customersDB.flatMap(c=>(getCustomerRewards(c).rewards||[]).map(r=>({...r,customerId:c.id,customerName:c.name}))).sort((a,b)=>(b.date||0)-(a.date||0));
+if(!rows.length){box.innerHTML='<div class="reward-empty">No rewards recorded yet.</div>';return;}
+box.innerHTML=rows.map(r=>`<div class="reward-history-item"><div><strong>${escapeHtml(r.customerName)}</strong><br><small>${escapeHtml(r.source||r.type||'Reward')} · ${new Date(r.date||Date.now()).toLocaleString('en-PH')}</small></div><div style="display:flex;align-items:center;gap:7px;"><span class="reward-pill">${escapeHtml(r.reward||'Reward')}</span><button class="cert-award-btn" title="Issue certificate" onclick="showRewardCertificate('${r.customerId}','${r.id}')"><i class="fas fa-certificate"></i></button><button class="cert-delete-btn" title="Delete reward record" onclick="deleteRewardRecord('${r.customerId}','${r.id}')"><i class="fas fa-trash"></i></button></div></div>`).join('');
+}
+
+function deleteRewardRecord(customerId,rewardId){
+const c=customersDB.find(x=>x.id===customerId); if(!c)return;
+getCustomerRewards(c);
+const reward=c.rewards.find(r=>r.id===rewardId); if(!reward)return;
+if(!confirm(`Delete this ${reward.source||'reward'} record for ${c.name}?`))return;
+c.rewards=c.rewards.filter(r=>r.id!==rewardId);
+if(reward.type==='quota' && reward.ruleId) c.quotaRecords=(c.quotaRecords||[]).filter(r=>r.id!==rewardId);
+saveRewardCustomers(); renderWheelCustomers(); renderCustomerQuotaRecords(); renderRewardHistory();
+showToast('Reward record deleted.');
+}
+
+function showWheelCertificate(customerId,encodedReward){
+const customer=customersDB.find(x=>x.id===customerId); if(!customer)return;
+const reward=decodeURIComponent(encodedReward||'Giveaway Reward');
+const latest=(customer.rewards||[]).find(r=>r.type==='wheel' && r.reward===reward);
+document.getElementById('certRecipientName').textContent=customer.name||'Valued Customer';
+document.getElementById('certTitlePremium').innerHTML='<i class="fas fa-trophy"></i> WHEEL OF FORTUNE WINNER';
+document.getElementById('certAchievement').innerHTML=`For winning <strong>${escapeHtml(reward)}</strong> through the DGC eStore Wheel of Fortune`;
+document.getElementById('certTotalSpent').textContent=reward;
+document.getElementById('certOrderCount').textContent='WINNER';
+document.getElementById('certCompletedCount').textContent='WHEEL';
+document.getElementById('certDate').textContent=new Date(latest?.date||Date.now()).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+document.getElementById('certificateModalOverlay').classList.add('active');
+}
+
+// ===== REWARD HISTORY . CERTIFICATE BUTTON =====
+function showRewardCertificate(customerId,rewardId){
+const c=customersDB.find(x=>x.id===customerId);if(!c)return;
+const r=(c.rewards||[]).find(x=>x.id===rewardId);if(!r)return;
+document.getElementById('certRecipientName').textContent=c.name||'Valued Customer';
+if(r.type==='wheel'){
+document.getElementById('certTitlePremium').innerHTML='<i class="fas fa-trophy"></i> WHEEL OF FORTUNE WINNER';
+document.getElementById('certAchievement').innerHTML=`For winning <strong>${escapeHtml(r.reward||'Giveaway Reward')}</strong> through the DGC eStore Wheel of Fortune`;
+document.getElementById('certTotalSpent').textContent=r.reward||'—';
+document.getElementById('certOrderCount').textContent='WINNER';
+document.getElementById('certCompletedCount').textContent='WHEEL';
+}else if(r.type==='quota'){
+document.getElementById('certTitlePremium').innerHTML='<i class="fas fa-award"></i> QUOTA ACHIEVEMENT';
+document.getElementById('certAchievement').innerHTML=`For completing <strong>${escapeHtml(r.quotaName||'Quota')}</strong> and earning <strong>${escapeHtml(r.reward||'Reward')}</strong>`;
+document.getElementById('certTotalSpent').textContent=r.reward||'—';
+document.getElementById('certOrderCount').textContent=r.purchasedQty||'—';
+document.getElementById('certCompletedCount').textContent='QUOTA';
+}else{
+document.getElementById('certTitlePremium').innerHTML='<i class="fas fa-gift"></i> REWARD RECIPIENT';
+document.getElementById('certAchievement').innerHTML=`For receiving <strong>${escapeHtml(r.reward||'Reward')}</strong>`;
+document.getElementById('certTotalSpent').textContent=r.reward||'—';
+document.getElementById('certOrderCount').textContent='REWARD';
+document.getElementById('certCompletedCount').textContent='DGC';
+}
+document.getElementById('certDate').textContent=new Date(r.date||Date.now()).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+document.getElementById('certificateModalOverlay').classList.add('active');
+}
+
+// Quota certificate uses the same premium certificate design.
+function showQuotaCertificate(customer, rule, record){
+document.getElementById('certRecipientName').textContent=customer.name||'Valued Customer';
+document.getElementById('certTitlePremium').innerHTML='<i class="fas fa-award"></i> QUOTA ACHIEVEMENT';
+document.getElementById('certAchievement').innerHTML=`For completing <strong>${escapeHtml(rule.name)}</strong> and earning <strong>FREE ${rule.rewardQty}</strong>`;
+document.getElementById('certTotalSpent').textContent='FREE '+rule.rewardQty;
+document.getElementById('certOrderCount').textContent=record.purchasedQty;
+document.getElementById('certCompletedCount').textContent='QUOTA';
+document.getElementById('certDate').textContent=new Date(record.date).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+document.getElementById('certificateModalOverlay').classList.add('active');
+}
+
+// Reset certificate copy for top-customer certificates.
 
 // ===== PRODUCTS DASHBOARD (NEW EXCEL-STYLE INLINE EDIT) =====
 let dashboardCurrentDate = new Date();
@@ -3293,14 +3785,17 @@ document.querySelectorAll('.dashboard-panel-content').forEach(p => p.classList.r
 document.getElementById(tab + 'Panel').classList.add('active');
 if (tab === 'sales') renderSalesPanel();
   if (tab === 'inventory') renderInventoryPanel();
+if (tab === 'categories') renderCategoriesPanel();
 }
 
 
 function renderProductsDashboard() {
 productPriceList = getProductPriceList();
+renderCategorySelects();
 renderProductsPanel();
 renderInventoryPanel();
 renderSalesPanel();
+renderCategoriesPanel();
 }
 
 
@@ -3308,7 +3803,7 @@ function renderProductsPanel() {
 const tbody = document.getElementById('dashboardProductsBody');
 const filter = document.getElementById('dashboardCategoryFilter').value;
 let displayProducts = productPriceList;
-if (filter !== 'all') {
+if (filter !== 'all' && getCategories().some(c => c.id === filter)) {
 displayProducts = productPriceList.filter(p => p.category === filter);
 }
 
@@ -3324,15 +3819,7 @@ const profit = p.price - p.cost;
 const margin = p.price > 0 ? Math.round((profit / p.price) * 100) : 0;
 return `<tr data-id="${p.id}">
 <td><input type="text" value="${escapeHtml(p.name)}" onchange="updateProductField('${p.id}','name',this.value)" placeholder="Product name"></td>
-<td>
-<select onchange="updateProductField('${p.id}','category',this.value)">
-<option value="diamonds" ${p.category==='diamonds'?'selected':''}>💎 Diamonds</option>
-<option value="skin_gifting" ${p.category==='skin_gifting'?'selected':''}>🎨 Skin</option>
-<option value="squad" ${p.category==='squad'?'selected':''}>👥 Squad</option>
-<option value="tlobby" ${p.category==='tlobby'?'selected':''}>🏆 T-Lobby</option>
-<option value="other" ${p.category==='other'?'selected':''}>🎮 Other</option>
-</select>
-</td>
+<td><select onchange="updateProductField('${p.id}','category',this.value)">${getCategoryOptionsHTML(p.category)}</select></td>
 <td><input type="number" value="${p.cost}" onchange="updateProductField('${p.id}','cost',this.value)" style="color:var(--danger);font-weight:600;"></td>
 <td><input type="number" value="${p.price}" onchange="updateProductField('${p.id}','price',this.value)" style="color:var(--pink);font-weight:700;"></td>
 <td class="profit" id="profit-${p.id}">+₱${profit.toLocaleString()}</td>
@@ -3398,7 +3885,7 @@ function renderInventoryPanel() {
   const filterEl = document.getElementById('dashboardInventoryCategoryFilter');
   const filter = filterEl ? filterEl.value : 'all';
   let displayProducts = productPriceList;
-  if (filter !== 'all') displayProducts = productPriceList.filter(p => p.category === filter);
+  if (filter !== 'all' && getCategories().some(c => c.id === filter)) displayProducts = productPriceList.filter(p => p.category === filter);
 
   let totalUnits = 0, lowStock = 0, outOfStock = 0, inventoryValue = 0;
   displayProducts.forEach(p => {
@@ -3791,19 +4278,20 @@ showToast('Failed to download: ' + err.message, 'error');
 <!-- ===== TOP CUSTOMER CERTIFICATE MODAL ===== -->
 <div class="certificate-modal-overlay" id="certificateModalOverlay" onclick="if(event.target===this)closeCertificateModal()">
 <div class="certificate-modal" id="certificateModal" onclick="event.stopPropagation()">
+<div class="cert-frame">
 <div class="cert-border"></div>
 <div class="cert-border-inner"></div>
 <button class="cert-close" onclick="closeCertificateModal()"><i class="fas fa-times"></i></button>
 <div class="certificate-header">
-<img src="adminlogo.png" alt="DGC eStore" id="certLogo" onerror="this.style.display='none'">
-<h2><i class="fas fa-crown"></i> Certificate of Excellence</h2>
-<p>DGC eStore Digital Customer Rewards Program</p>
+<img src="https://i.imgur.com/qZQxKje.png" alt="DGC eStore" id="certLogo" crossorigin="anonymous" onerror="this.src='dgcestorelogo.png'">
 </div>
 <div class="cert-body">
+<div class="cert-presented">CERTIFICATE OF ACHIEVEMENT</div>
+<div class="cert-title-premium" id="certTitlePremium"><i class="fas fa-crown"></i> TOP CUSTOMER AWARD</div>
 <div class="cert-presented">This certificate is proudly presented to</div>
 <div class="cert-recipient" id="certRecipientName">Customer Name</div>
 <div class="cert-divider"></div>
-<div class="cert-achievement">For being our <strong>TOP 1 CUSTOMER</strong>
+<div class="cert-achievement" id="certAchievement">For being our <strong>TOP 1 CUSTOMER</strong>
 with outstanding loyalty and support</div>
 <div class="cert-stats">
 <div class="cert-stat">
@@ -3819,16 +4307,92 @@ with outstanding loyalty and support</div>
 <div class="cert-stat-label">Completed</div>
 </div>
 </div>
-<div style="font-size:14px;color:var(--teal-light);margin-top:20px;font-style:italic;">Awarded on <span id="certDate"></span></div>
 </div>
 <div class="cert-footer">
-<div class="cert-seal"><i class="fas fa-check"></i></div>
-<p>Manager Julie | DGC eStore</p>
-<button class="cert-download-btn" onclick="downloadCertificate()"><i class="fas fa-download"></i> Download Certificate</button>
+<div class="cert-signoff-row">
+<div class="cert-date-box">
+<div class="cert-date-label">Awarded on</div>
+<div class="cert-date-value" id="certDate"></div>
+<div class="cert-date-line"></div>
+</div>
+<div class="cert-logo-box">
+<img src="https://i.imgur.com/jiS3Xh7.png" alt="DGC eStore" crossorigin="anonymous" onerror="this.onerror=null;this.src='NEWLOGODGCESTORETRANSPARENT.png'">
+</div>
+<div class="cert-signature-area">
+<div class="cert-founder-name signature-font">Reinayanne</div>
+<div class="cert-sign-line"></div>
+<div class="cert-founder-role">DGC eStore Founder</div>
+</div>
+</div>
+</div>
+</div>
+<button class="cert-download-btn" style="width:calc(100% - 60px);margin:16px 30px 26px;" onclick="downloadCertificate()"><i class="fas fa-download"></i> Download Certificate</button>
 </div>
 </div>
 </div>
 
+
+
+<!-- ===== REWARDS CENTER ===== -->
+<div class="rewards-modal-overlay" id="rewardsCenterOverlay" onclick="if(event.target===this)closeRewardsCenter()">
+<div class="rewards-modal" onclick="event.stopPropagation()">
+<div class="rewards-head">
+<h3><i class="fas fa-gift"></i> Customer Rewards Center</h3>
+<button class="rewards-close" onclick="closeRewardsCenter()"><i class="fas fa-times"></i></button>
+</div>
+<div class="rewards-body">
+<div class="rewards-tabs">
+<button class="rewards-tab active" data-reward-tab="wheel" onclick="switchRewardsTab('wheel')"><i class="fas fa-dharmachakra"></i> Wheel of Fortune</button>
+<button class="rewards-tab" data-reward-tab="quotas" onclick="switchRewardsTab('quotas')"><i class="fas fa-bullseye"></i> Quotas</button>
+<button class="rewards-tab" data-reward-tab="history" onclick="switchRewardsTab('history')"><i class="fas fa-clock-rotate-left"></i> Reward History</button>
+</div>
+
+<div class="reward-panel active" id="rewardWheelPanel">
+<div class="reward-grid">
+<div class="reward-card">
+<h4><i class="fas fa-dharmachakra"></i> Random Customer Giveaway</h4>
+<div class="wheel-pointer"></div>
+<div class="wheel" id="fortuneWheel"><div class="wheel-center" id="wheelCenterText">SPIN</div></div>
+<div class="form-group">
+<label class="form-label">Reward</label>
+<input class="form-input" id="wheelRewardInput" value="₱100 DGC Wallet" placeholder="e.g. Free WDP">
+</div>
+<button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px;background:linear-gradient(135deg,var(--teal-light),var(--teal-deep));" onclick="spinCustomerWheel()"><i class="fas fa-play"></i> Spin & Award</button>
+<div id="wheelWinnerActions"></div>
+</div>
+<div class="reward-card">
+<h4><i class="fas fa-users"></i> Customers in the Wheel</h4>
+<div class="reward-list" id="wheelCustomerList"></div>
+</div>
+</div>
+</div>
+
+<div class="reward-panel" id="rewardQuotasPanel">
+<div class="reward-card">
+<h4><i class="fas fa-bullseye"></i> Sales Quota / Milestone</h4>
+<div class="quota-form">
+<div><label class="form-label">Quota Name</label><input class="form-input" id="quotaName" value="Starlight Promo" placeholder="e.g. Starlight"></div>
+<div><label class="form-label">Buy Qty</label><input type="number" min="1" class="form-input" id="quotaTarget" value="13"></div>
+<div><label class="form-label">Free Qty</label><input type="number" min="1" class="form-input" id="quotaRewardQty" value="1"></div>
+<button class="btn btn-primary" onclick="addQuotaRule()"><i class="fas fa-plus"></i> Add</button>
+</div>
+<div style="margin-top:18px;" id="quotaRulesList"></div>
+</div>
+<div class="reward-card" style="margin-top:20px;">
+<h4><i class="fas fa-user-check"></i> Customer Quota Records</h4>
+<div class="reward-list" id="customerQuotaRecords"></div>
+</div>
+</div>
+
+<div class="reward-panel" id="rewardHistoryPanel">
+<div class="reward-card">
+<h4><i class="fas fa-clock-rotate-left"></i> All Rewards Received</h4>
+<div class="reward-list" id="rewardHistoryList"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 <!-- ===== PRODUCTS DASHBOARD MODAL (NEW) ===== -->
 <div class="dashboard-modal-overlay" id="dashboardModalOverlay" onclick="if(event.target===this)closeProductsDashboard()">
@@ -3840,6 +4404,7 @@ with outstanding loyalty and support</div>
 <div class="dashboard-body">
 <div class="dashboard-tabs">
 <button class="dashboard-tab active" data-tab="products" onclick="switchDashboardTab('products')"><i class="fas fa-tags"></i> Products</button>
+<button class="dashboard-tab" data-tab="categories" onclick="switchDashboardTab('categories')"><i class="fas fa-layer-group"></i> Categories</button>
 <button class="dashboard-tab" data-tab="sales" onclick="switchDashboardTab('sales')"><i class="fas fa-chart-pie"></i> Sales & Analytics</button>
 <button class="dashboard-tab" data-tab="inventory" onclick="switchDashboardTab('inventory')"><i class="fas fa-boxes-stacked"></i> Inventory</button>
 </div>
@@ -3849,15 +4414,9 @@ with outstanding loyalty and support</div>
 <div id="productsPanel" class="dashboard-panel-content active">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-<select class="form-select" id="dashboardCategoryFilter" onchange="filterDashboardProducts()" style="min-width:180px;">
-<option value="all">All Categories</option>
-<option value="diamonds">💎 Diamonds</option>
-<option value="skin_gifting">🎨 Skin Gifting</option>
-<option value="squad">👥 V-Squad</option>
-<option value="tlobby">🏆 T-Lobby</option>
-<option value="other">🎮 Other Games</option>
-</select>
+<select class="form-select" id="dashboardCategoryFilter" onchange="filterDashboardProducts()" style="min-width:180px;"><option value="all">All Categories</option></select>
 <button class="btn btn-primary" style="padding:8px 16px;font-size:13px;" onclick="addDashboardProductRow()"><i class="fas fa-plus"></i> Add Row</button>
+<button class="btn btn-secondary" style="padding:8px 16px;font-size:13px;" onclick="switchDashboardTab('categories')"><i class="fas fa-layer-group"></i> Manage Categories</button>
 </div>
 <button class="btn btn-secondary" style="padding:8px 16px;font-size:13px;" onclick="saveDashboardProducts()"><i class="fas fa-save"></i> Save Changes</button>
 </div>
@@ -3880,6 +4439,27 @@ with outstanding loyalty and support</div>
 </div>
 
 
+<!-- CATEGORIES PANEL -->
+<div id="categoriesPanel" class="dashboard-panel-content">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+<div>
+<h4 style="color:var(--pink);font-size:17px;font-weight:800;margin-bottom:4px;"><i class="fas fa-layer-group"></i> Product Categories</h4>
+<small style="color:var(--pink-light);">Shared by Products, Admin Order Type & order filters. Lagyan ng emoji sa unahan para may icon (e.g. "🎁 Gift Items").</small>
+</div>
+</div>
+<div style="overflow-x:auto;">
+<table class="pricelist-table">
+<thead><tr><th>Category Label</th><th>Usage</th><th style="width:60px;">Del</th></tr></thead>
+<tbody id="dashboardCategoriesBody"></tbody>
+</table>
+</div>
+<div style="display:flex;gap:10px;margin-top:14px;">
+<input type="text" class="form-input" id="newCategoryLabel" placeholder="e.g. 🎁 Gift Items" style="flex:1;">
+<button class="btn btn-primary" style="padding:10px 20px;font-size:13px;" onclick="addCategoryFromInput()"><i class="fas fa-plus"></i> Add Category</button>
+</div>
+</div>
+
+
 <!-- INVENTORY PANEL -->
 <div id="inventoryPanel" class="dashboard-panel-content">
   <div class="inventory-summary">
@@ -3890,9 +4470,7 @@ with outstanding loyalty and support</div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
     <div><h4 style="color:var(--pink);font-size:17px;font-weight:800;margin-bottom:4px;"><i class="fas fa-boxes-stacked"></i> Sales Inventory</h4><small style="color:var(--pink-light);">Edit stock directly. Blank stock means unlimited digital inventory.</small></div>
-    <select class="form-select" id="dashboardInventoryCategoryFilter" onchange="filterInventoryProducts()" style="min-width:180px;">
-      <option value="all">All Categories</option><option value="diamonds">💎 Diamonds</option><option value="skin_gifting">🎨 Skin Gifting</option><option value="squad">👥 V-Squad</option><option value="tlobby">🏆 T-Lobby</option><option value="other">🎮 Other Games</option>
-    </select>
+    <select class="form-select" id="dashboardInventoryCategoryFilter" onchange="filterInventoryProducts()" style="min-width:180px;"><option value="all">All Categories</option></select>
   </div>
   <div class="inventory-table-wrap"><table class="pricelist-table"><thead><tr><th>Product</th><th>Stock</th><th>Units Sold</th><th>Remaining</th><th>Cost Value</th><th>Status</th><th>Action</th></tr></thead><tbody id="dashboardInventoryBody"></tbody></table></div>
 </div>
@@ -4011,6 +4589,28 @@ with outstanding loyalty and support</div>
 </div>
 
 
+
+
+<!-- ===== PAYMENT METHODS MODAL ===== -->
+<div class="modal-overlay" id="paymentMethodsModal" onclick="if(event.target===this)closePaymentMethodsModal()">
+<div class="modal" style="max-width:480px" onclick="event.stopPropagation()">
+<div class="modal-header">
+<h3 class="modal-title"><i class="fas fa-wallet"></i> Payment Methods</h3>
+<button class="modal-close" onclick="closePaymentMethodsModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<div id="pmList"></div>
+<div style="display:flex;gap:10px;margin-top:6px;">
+<input type="text" class="form-input" id="newPaymentMethodInput" placeholder="e.g. Palawan Express" style="flex:1;">
+<button class="btn btn-primary" style="padding:10px 18px;font-size:13px;" onclick="addPaymentMethodFromInput()"><i class="fas fa-plus"></i> Add</button>
+</div>
+<small style="color:var(--pink-light);display:block;margin-top:10px;"><i class="fas fa-info-circle"></i> Edit name inline, or delete. Dapat may natirang at least 1.</small>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closePaymentMethodsModal()">Done</button>
+</div>
+</div>
+</div>
 
 
 <!-- ===== CUSTOMERS LIST MODAL ===== -->
