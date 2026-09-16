@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -345,7 +346,8 @@ padding:8px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transfor
 .receipt-row-dg{display:flex;justify-content:space-between;align-items:center;margin:10px 0;font-size:14px;color:#555;font-family:'Inter',sans-serif;}
 .receipt-row-dg b{color:#0f172a;font-weight:600;font-size:14px;}
 .receipt-row-dg.discount-dg{color:#00d084;font-weight:600}
-.receipt-row-dg.original-price-dg{text-decoration:line-through;opacity:0.85;font-size:13px}
+.receipt-row-dg.original-price-dg{opacity:0.85;font-size:13px}
+.receipt-row-dg.original-price-dg b,.receipt-row-dg.original-price-dg span{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--danger)}
 .receipt-admin-note-dg{margin:14px 0;padding:12px 14px;background:linear-gradient(135deg,#fffdf6 0%,#fbf3dc 100%);border:1px solid rgba(212,175,55,.4);border-left:4px solid var(--gold-base);border-radius:10px;box-shadow:0 4px 14px rgba(212,175,55,.08),inset 0 0 22px rgba(212,175,55,.05);}
 .receipt-admin-note-dg b{color:#9a7a16!important;font-weight:600!important;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;font-size:11px;letter-spacing:.5px;text-transform:uppercase;}
 .receipt-admin-note-dg span{color:#7a6516!important;font-weight:400;font-size:13px;font-style:italic;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;}
@@ -898,6 +900,8 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -1008,7 +1012,8 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <div class="receipt-footer-dg">
 <b>THANK YOU FOR YOUR PURCHASE!</b>
 <div class="receipt-actions-dg">
-<button class="receipt-btn-dg primary-dg" onclick="downloadInlineReceipt()"><i class="fas fa-download"></i> Download Receipt</button>
+<button class="receipt-btn-dg primary-dg" onclick="downloadInlineReceipt()"><i class="fas fa-download"></i> Save / Share Receipt</button>
+<button class="receipt-btn-dg" onclick="copyReceiptImage()"><i class="fas fa-image"></i> Copy Image (paste sa Messenger)</button>
 <button class="receipt-btn-dg" onclick="closeReceiptModal()"><i class="fas fa-times"></i> Close</button>
 </div>
 </div>
@@ -3093,7 +3098,7 @@ showToast(`📊 Exported ${uniqueOrders.length} orders to Excel`);
 
 document.addEventListener('keydown', (e) => {
 if (e.key === 'Escape') {
-closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal(); closePaymentMethodsModal();
+closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal(); closePaymentMethodsModal(); closeSaveOptions();
 }
 });
 
@@ -3134,7 +3139,7 @@ closeModal();
 
 const productName = order.itemName || 'Unknown Product';
 const total = parseFloat(order.totalAmount || order.total || 0);
-const subtotal = parseFloat(order.price || total);
+const subtotal = parseFloat(order.price) || (discount > 0 ? total + discount : total);
 const discount = parseFloat(order.discount || 0);
 
 
@@ -3244,40 +3249,205 @@ document.getElementById('receiptModalOverlay').classList.remove('active');
 }
 
 
-function downloadInlineReceipt() {
-const receiptModal = document.getElementById('receiptModal');
-if (!receiptModal || typeof html2canvas === 'undefined') {
-showToast('Receipt capture not available', 'error');
-return;
+// ===== SMART SAVE / SHARE HELPERS (mobile-aware: iPhone / Android / desktop) =====
+function isIOSDevice() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
-const btn = event.target.closest('button');
-if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...'; btn.disabled = true; }
-// Hide buttons during capture
-const receiptActions = receiptModal.querySelector('.receipt-actions-dg');
-const closeBtn = receiptModal.querySelector('.receipt-modal-close');
-if (receiptActions) receiptActions.style.display = 'none';
-if (closeBtn) closeBtn.style.display = 'none';
-html2canvas(receiptModal, {
-scale: 2,
-useCORS: true,
-allowTaint: true,
-backgroundColor: '#ffffff',
-logging: false
-}).then(canvas => {
-const link = document.createElement('a');
-link.download = `Receipt-${currentOrderId || 'order'}.png`;
-link.href = canvas.toDataURL('image/png');
-link.click();
-showToast('Receipt downloaded as PNG!');
-if (receiptActions) receiptActions.style.display = '';
-if (closeBtn) closeBtn.style.display = '';
-if (btn) { btn.innerHTML = '<i class="fas fa-download"></i> Download Receipt'; btn.disabled = false; }
-}).catch(err => {
-showToast('Failed to download: ' + err.message, 'error');
-if (receiptActions) receiptActions.style.display = '';
-if (closeBtn) closeBtn.style.display = '';
-if (btn) { btn.innerHTML = '<i class="fas fa-download"></i> Download Receipt'; btn.disabled = false; }
-});
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && /Mac|Windows/.test(navigator.platform));
+}
+function generateCanvasPngBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    if (canvas.toBlob) {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('No image data')), 'image/png');
+    } else {
+      const dataUrl = canvas.toDataURL('image/png');
+      const bin = atob(dataUrl.split(',')[1]);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      resolve(new Blob([arr], { type: 'image/png' }));
+    }
+  });
+}
+async function saveCanvasImage(canvas, filename, shareTitle) {
+  const blob = await generateCanvasPngBlob(canvas);
+  // MOBILE: ipakita ang options menu (Download PNG / Copy Image / Share)
+  if (isMobileDevice()) {
+    promptSaveOptions(blob, filename, shareTitle);
+    return 'options';
+  }
+  // DESKTOP: diretso download — makikita sa browser download history
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  return 'downloaded';
+}
+
+// ===== SAVE / SHARE OPTIONS MODAL (mobile) =====
+let pendingSaveBlob = null, pendingSaveFilename = '', pendingSaveTitle = '';
+function promptSaveOptions(blob, filename, title) {
+  pendingSaveBlob = blob; pendingSaveFilename = filename; pendingSaveTitle = title || filename;
+  document.getElementById('saveOptionsModal').classList.add('active');
+}
+function closeSaveOptions() {
+  document.getElementById('saveOptionsModal').classList.remove('active');
+  pendingSaveBlob = null;
+}
+async function doSaveAction(action) {
+  const blob = pendingSaveBlob, filename = pendingSaveFilename, title = pendingSaveTitle;
+  closeSaveOptions();
+  if (!blob) return;
+  if (action === 'download') {
+    // Same as before — nasesave sa Downloads at makikita sa browser download history
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    showToast('Downloaded! Nasa browser download history mo 📥');
+  } else if (action === 'copy') {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      showToast('Image copied! Paste it sa Messenger 📋');
+    } catch (e) {
+      showToast('Copy not supported dito — piliin ang Download PNG', 'error');
+    }
+  } else if (action === 'share') {
+    const file = new File([blob], filename, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: title }); } catch (e) {}
+    } else {
+      showToast('Share not supported dito — piliin ang Download PNG', 'error');
+    }
+  }
+}
+
+
+// ===== COPY RECEIPT AS TEXT (paste anywhere — Messenger, SMS, notes...) =====
+function copyReceiptText() {
+  const order = allOrders.find(o => o.orderId === currentOrderId);
+  if (!order) { showToast('Order not found!', 'error'); return; }
+  const total = parseFloat(order.totalAmount || order.total || 0);
+  const discount = parseFloat(order.discount || 0);
+  const subtotal = parseFloat(order.price) || (discount > 0 ? total + discount : total);
+  const customerName = (order.enteredCustomerName || order.customerName || '').toString().trim();
+  const status = normalizeStatus(order.status);
+  const lastNote = (order.notes && order.notes.length) ? order.notes[order.notes.length - 1].text : '';
+  const money = n => '\u20B1' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+  const lines = [
+    '\u{1F9FE} DGC eStore \u2014 ORDER RECEIPT',
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    'Order ID : #' + order.orderId,
+    'Status   : ' + status.toUpperCase(),
+    'Date     : ' + new Date(order.timestamp || Date.now()).toLocaleString('en-PH')
+  ];
+  if (customerName && customerName !== 'Walk-in' && customerName !== (order.ign || '')) lines.push('Customer : ' + customerName);
+  lines.push(
+    'Product  : ' + (order.itemName || '-'),
+    'IGN      : ' + (order.ign || '-'),
+    'Game ID  : ' + (order.gameId || '-'),
+    'Server   : ' + (order.serverId || '-'),
+    'Payment  : ' + (order.paymentMethod || 'GCash')
+  );
+  if (discount > 0) {
+    lines.push('Original : ' + money(subtotal));
+    lines.push('Discount : -' + money(discount));
+  }
+  lines.push('TOTAL    : ' + money(total));
+  if (lastNote) lines.push('Admin Note: ' + lastNote);
+  lines.push('\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501', 'Thank you for your purchase! \u{1F496}');
+  const text = lines.join('\n');
+  const done = () => showToast('\u{1F4CB} Receipt copied! Pwede mo nang i-paste sa chat \u{1F496}');
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopyText(text, done));
+  } else {
+    fallbackCopyText(text, done);
+  }
+}
+function fallbackCopyText(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); done(); }
+  catch (e) { showToast('Copy failed \u2014 screenshot na lang muna', 'error'); }
+  document.body.removeChild(ta);
+}
+
+// ===== COPY RECEIPT AS PNG IMAGE (paste sa Messenger) =====
+async function copyReceiptImage() {
+  const receiptModal = document.getElementById('receiptModal');
+  if (!receiptModal || typeof html2canvas === 'undefined') {
+    showToast('Receipt capture not available', 'error');
+    return;
+  }
+  const btn = event.target.closest('button');
+  const originalBtnHTML = btn ? btn.innerHTML : '';
+  if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Copying...'; btn.disabled = true; }
+  const receiptActions = receiptModal.querySelector('.receipt-actions-dg');
+  const closeBtn = receiptModal.querySelector('.receipt-modal-close');
+  if (receiptActions) receiptActions.style.display = 'none';
+  if (closeBtn) closeBtn.style.display = 'none';
+  try {
+    const canvas = await html2canvas(receiptModal, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false });
+    const blob = await generateCanvasPngBlob(canvas);
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      showToast('Receipt image copied! Paste it sa Messenger 📋');
+    } catch (e) {
+      // Image clipboard not supported — fallback sa text copy
+      copyReceiptText();
+    }
+  } catch (err) {
+    showToast('Copy failed: ' + err.message, 'error');
+  } finally {
+    if (receiptActions) receiptActions.style.display = '';
+    if (closeBtn) closeBtn.style.display = '';
+    if (btn) { btn.innerHTML = originalBtnHTML; btn.disabled = false; }
+  }
+}
+
+
+
+// ===== DOWNLOAD / SHARE RECEIPT (mobile-aware) =====
+function downloadInlineReceipt() {
+  const receiptModal = document.getElementById('receiptModal');
+  if (!receiptModal || typeof html2canvas === 'undefined') {
+    showToast('Receipt capture not available', 'error');
+    return;
+  }
+  const btn = event.target.closest('button');
+  const originalBtnHTML = btn ? btn.innerHTML : '';
+  if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...'; btn.disabled = true; }
+  const receiptActions = receiptModal.querySelector('.receipt-actions-dg');
+  const closeBtn = receiptModal.querySelector('.receipt-modal-close');
+  if (receiptActions) receiptActions.style.display = 'none';
+  if (closeBtn) closeBtn.style.display = 'none';
+  html2canvas(receiptModal, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false })
+    .then(canvas => saveCanvasImage(canvas, 'Receipt-' + (currentOrderId || 'order') + '.png', 'DGC eStore Receipt'))
+    .then(result => {
+      if (result === 'downloaded') showToast('Receipt downloaded! \u{1F4BE}');
+      else if (result === 'shared') showToast('Receipt shared! \u2705');
+    })
+    .catch(err => showToast('Failed: ' + err.message, 'error'))
+    .finally(() => {
+      if (receiptActions) receiptActions.style.display = '';
+      if (closeBtn) closeBtn.style.display = '';
+      if (btn) { btn.innerHTML = originalBtnHTML; btn.disabled = false; }
+    });
 }
 
 
@@ -3521,48 +3691,43 @@ document.getElementById('certificateModalOverlay').classList.remove('active');
 
 
 function downloadCertificate() {
-const certModal = document.getElementById('certificateModal');
-const btn = certModal.querySelector('.cert-download-btn');
-const closeBtn = certModal.querySelector('.cert-close');
-if (!certModal || typeof html2canvas === 'undefined') {
-showToast('Certificate capture not available', 'error');
-if (btn) btn.style.display = '';
-if (closeBtn) closeBtn.style.display = '';
-return;
+  const certModal = document.getElementById('certificateModal');
+  const btn = certModal ? certModal.querySelector('.cert-download-btn') : null;
+  const closeBtn = certModal ? certModal.querySelector('.cert-close') : null;
+  if (!certModal || typeof html2canvas === 'undefined') {
+    showToast('Certificate capture not available', 'error');
+    return;
+  }
+  // html2canvas HINDI kayang i-render ang gradient text (background-clip:text)
+  // — pansamantalang gawing solid color para lumabas ang pangalan sa PNG
+  const recipient = document.getElementById('certRecipientName');
+  const prevStyle = recipient ? recipient.getAttribute('style') : null;
+  if (recipient) {
+    recipient.style.background = 'none';
+    recipient.style.setProperty('-webkit-background-clip', 'initial', 'important');
+    recipient.style.setProperty('background-clip', 'initial', 'important');
+    recipient.style.setProperty('-webkit-text-fill-color', '#0d5d65', 'important');
+    recipient.style.color = '#0d5d65';
+  }
+  const originalBtnHTML = btn ? btn.innerHTML : '';
+  if (btn) btn.style.display = 'none';
+  if (closeBtn) closeBtn.style.display = 'none';
+  html2canvas(certModal, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#fdfcf8', logging: false })
+    .then(canvas => saveCanvasImage(canvas, 'DGC-Certificate-' + Date.now() + '.png', 'DGC eStore Certificate'))
+    .then(result => {
+      if (result === 'downloaded') showToast('Certificate downloaded! \u{1F3C6}');
+      else if (result === 'shared') showToast('Certificate shared! \u2705');
+    })
+    .catch(err => showToast('Failed to download: ' + err.message, 'error'))
+    .finally(() => {
+      if (btn) { btn.style.display = ''; btn.innerHTML = originalBtnHTML; }
+      if (closeBtn) closeBtn.style.display = '';
+      if (recipient) {
+        if (prevStyle === null) recipient.removeAttribute('style');
+        else recipient.setAttribute('style', prevStyle);
+      }
+    });
 }
-// html2canvas HINDI kayang i-render ang gradient text (background-clip:text)
-// — pansamantalang gawing solid color para lumabas ang pangalan sa PNG
-const recipient = document.getElementById('certRecipientName');
-const prevStyle = recipient ? recipient.getAttribute('style') : null;
-if (recipient) {
-recipient.style.background = 'none';
-recipient.style.setProperty('-webkit-background-clip', 'initial', 'important');
-recipient.style.setProperty('background-clip', 'initial', 'important');
-recipient.style.setProperty('-webkit-text-fill-color', '#0d5d65', 'important');
-recipient.style.color = '#0d5d65';
-}
-if (btn) btn.style.display = 'none';
-if (closeBtn) closeBtn.style.display = 'none';
-html2canvas(certModal, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#fdfcf8', logging: false })
-.then(canvas => {
-const link = document.createElement('a');
-link.download = `Top-Customer-Certificate-${Date.now()}.png`;
-link.href = canvas.toDataURL('image/png');
-link.click();
-showToast('Certificate downloaded!');
-})
-.catch(err => showToast('Failed to download: ' + err.message, 'error'))
-.then(() => {
-if (btn) btn.style.display = '';
-if (closeBtn) closeBtn.style.display = '';
-if (recipient) {
-if (prevStyle === null) recipient.removeAttribute('style');
-else recipient.setAttribute('style', prevStyle);
-}
-});
-}
-
-
 
 // ===== CUSTOMER REWARDS CENTER =====
 let rewardSpinLock = false;
@@ -4254,22 +4419,20 @@ document.getElementById('discountPosterModal').classList.add('active');
 
 
 function downloadDiscountPoster() {
-const poster = document.getElementById('discountPosterCanvas');
-if (!poster || typeof html2canvas === 'undefined') { showToast('Poster capture not available', 'error'); return; }
-const bar = document.querySelector('#discountPosterModal .poster-actions-bar');
-if (bar) bar.style.visibility = 'hidden';
-html2canvas(poster, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#0d5d65', logging: false }).then(canvas => {
-if (bar) bar.style.visibility = '';
-const link = document.createElement('a');
-link.download = 'DGC-Discount-Poster-' + Date.now() + '.png';
-link.href = canvas.toDataURL('image/png');
-link.click();
-showToast('Poster downloaded!');
-}).catch(err => {
-if (bar) bar.style.visibility = '';
-showToast('Failed to download: ' + err.message, 'error');
-});
+  const poster = document.getElementById('discountPosterCanvas');
+  if (!poster || typeof html2canvas === 'undefined') { showToast('Poster capture not available', 'error'); return; }
+  const bar = document.querySelector('#discountPosterModal .poster-actions-bar');
+  if (bar) bar.style.visibility = 'hidden';
+  html2canvas(poster, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#0d5d65', logging: false })
+    .then(canvas => saveCanvasImage(canvas, 'DGC-Discount-Poster-' + Date.now() + '.png', 'DGC eStore Discount Poster'))
+    .then(result => {
+      if (result === 'downloaded') showToast('Poster downloaded! \u{1F4E2}');
+      else if (result === 'shared') showToast('Poster shared! \u2705');
+    })
+    .catch(err => showToast('Failed to download: ' + err.message, 'error'))
+    .finally(() => { if (bar) bar.style.visibility = ''; });
 }
+
 </script>
 
 
@@ -4722,6 +4885,19 @@ with outstanding loyalty and support</div>
 </div>
 </div>
 
+
+
+<!-- ===== SAVE / SHARE OPTIONS MODAL (mobile) ===== -->
+<div class="modal-overlay" id="saveOptionsModal" onclick="if(event.target===this)closeSaveOptions()">
+<div class="modal" style="max-width:400px;padding:30px;text-align:center;" onclick="event.stopPropagation()">
+<h3 style="color:var(--pink);margin-bottom:8px;font-size:20px;font-weight:800;"><i class="fas fa-share-nodes"></i> Save Image</h3>
+<p style="color:var(--pink-light);font-size:13px;margin-bottom:20px;">Piliin kung paano mo gustong i-save:</p>
+<button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="doSaveAction('download')"><i class="fas fa-download"></i> Download PNG</button>
+<button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;background:linear-gradient(135deg,#8b5cf6 0%,#7c3aed 100%);box-shadow:0 4px 15px rgba(139,92,246,0.4);" onclick="doSaveAction('copy')"><i class="fas fa-image"></i> Copy Image (paste sa Messenger)</button>
+<button class="btn btn-secondary" style="width:100%;justify-content:center;" onclick="doSaveAction('share')"><i class="fas fa-share-alt"></i> Share / Save to Photos</button>
+<button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:10px;" onclick="closeSaveOptions()">Cancel</button>
+</div>
+</div>
 
 </body>
 </html>
