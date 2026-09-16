@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -891,8 +892,31 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 .reward-empty{text-align:center;padding:25px;color:#8a999b}
 .customer-reward-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:#fff4c9;color:#8a6a00;font-size:10px;font-weight:800}
 
+
+/* ===== MODAL STACK — bagong modal sa front, dating modal nag-bbblur ===== */
+.modal-blurred{pointer-events:none !important;}
+.modal-blurred>*{filter:blur(6px) brightness(.92);transition:filter .3s ease;}
+.modal-overlay,.receipt-modal-overlay,.calendar-modal-overlay,.certificate-modal-overlay,.dashboard-modal-overlay,.poster-modal-overlay,.rewards-modal-overlay,.image-modal{transition:filter .3s ease;}
+
+
+/* ===== REMINDERS (manual create/edit/delete) ===== */
+.calendar-day.has-reminder{background:linear-gradient(135deg,#e8f4fd 0%,#d0e8fa 100%);border-color:var(--info);}
+.cd-reminder-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:10px;margin-bottom:8px;border-left:4px solid var(--info);font-size:13px;}
+.cd-reminder-item strong{color:var(--pink);}
+.cd-reminder-item small{display:block;color:var(--pink-light);margin-top:2px;}
+.cd-reminder-item .rem-actions{display:flex;gap:4px;flex-shrink:0;}
+.cd-reminder-item .rem-actions button{width:26px;height:26px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;}
+.cd-reminder-item .rem-actions .btn-edit{background:rgba(52,152,219,0.12);color:var(--info);}
+.cd-reminder-item .rem-actions .btn-edit:hover{background:var(--info);color:#fff;}
+.cd-reminder-item .rem-actions .btn-del{background:rgba(255,71,87,0.12);color:var(--danger);}
+.cd-reminder-item .rem-actions .btn-del:hover{background:var(--danger);color:#fff;}
+.calendar-reminder-add-btn{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:15px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.calendar-reminder-add-btn:hover{background:#fff;color:var(--pink);transform:scale(1.1);}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<base target="_blank">
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
@@ -1021,6 +1045,38 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 </div>
 
 
+<!-- ===== REMINDER ADD/EDIT MODAL ===== -->
+<div class="modal-overlay" id="reminderModal" onclick="if(event.target===this)closeReminderModal()">
+<div class="modal" style="max-width:440px" onclick="event.stopPropagation()">
+<div class="modal-header">
+<h3 class="modal-title" id="reminderModalTitle"><i class="fas fa-bell"></i> Add Reminder</h3>
+<button class="modal-close" onclick="closeReminderModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<div class="form-grid" style="grid-template-columns:1fr;">
+<div class="form-group">
+<label class="form-label">Reminder Title *</label>
+<input type="text" class="form-input" id="reminderTitle" placeholder="e.g. Follow up kay Juan, Bayaran ang supplier">
+</div>
+<div class="form-group">
+<label class="form-label">Date *</label>
+<input type="date" class="form-input" id="reminderDate">
+</div>
+<div class="form-group">
+<label class="form-label">Note <span style="color:var(--pink-light);font-size:11px;">(Optional)</span></label>
+<textarea class="form-input" id="reminderNote" rows="3" placeholder="Any details..."></textarea>
+</div>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closeReminderModal()">Cancel</button>
+<button class="btn btn-danger" id="reminderDeleteBtn" style="display:none;" onclick="deleteReminderFromModal()"><i class="fas fa-trash"></i> Delete</button>
+<button class="btn btn-primary" onclick="saveReminder()"><i class="fas fa-save"></i> Save Reminder</button>
+</div>
+</div>
+</div>
+
+
 <!-- ===== CALENDAR MODAL ===== -->
 <div class="calendar-modal-overlay" id="calendarModalOverlay" onclick="closeCalendarModal()">
 <div class="calendar-modal" onclick="event.stopPropagation()">
@@ -1032,6 +1088,8 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <span id="calendarMonthYear">September 2026</span>
 <button onclick="changeCalendarMonth(1)"><i class="fas fa-chevron-right"></i></button>
 </div>
+<button class="calendar-reminder-add-btn" onclick="openReminderModal()" title="Add Reminder"><i class="fas fa-bell"></i></button>
+<button class="calendar-reminder-add-btn" onclick="deleteAllPastReminders()" title="Delete all past / dated reminders" style="background:rgba(255,71,87,0.3);"><i class="fas fa-trash"></i></button>
 <button class="calendar-modal-close" onclick="closeCalendarModal()"><i class="fas fa-times"></i></button>
 </div>
 </div>
@@ -1043,9 +1101,10 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <div class="calendar-legend">
 <div class="calendar-legend-item"><span style="background:var(--warning);"></span> Reminder</div>
 <div class="calendar-legend-item"><span style="background:var(--danger);"></span> Due Today</div>
+<div class="calendar-legend-item"><span style="background:var(--info);"></span> My Reminder</div>
 </div>
 <div class="calendar-day-detail" id="calendarDayDetail">
-<h4><i class="fas fa-list"></i> Orders for <span id="calendarDetailDate">--</span></h4>
+<h4><i class="fas fa-list"></i> Reminders &amp; Orders for <span id="calendarDetailDate">--</span></h4>
 <div id="calendarDetailList"></div>
 </div>
 </div>
@@ -1322,6 +1381,10 @@ let musicPlaying = false;
 let coffeeAudio = null;
 let calendarCurrentDate = new Date();
 let shownDeadlineAlerts = new Set();
+let reminders = [];
+let remindersRef = null;
+let editingReminderId = null;
+let selectedCalendarDate = null;
 
 
 const mottos = [
@@ -1473,6 +1536,7 @@ db = firebase.database();
 emailjs.init("r8iqfxlI8fiB36KUY");
 startOrdersListener();
 startSkinGiftingListener();
+startRemindersListener();
 startManagerDataSync();
 } else {
 showToast('Firebase not loaded', 'error');
@@ -1943,6 +2007,7 @@ const dayDeadlines = uniqueOrders.filter(o => {
 if (!o.deadline) return false;
 return o.deadline === dateStr;
 });
+const dayReminders = (reminders || []).filter(r => r.date === dateStr);
 
 
 let classes = 'calendar-day';
@@ -1952,6 +2017,7 @@ if (dayDeadlines.length > 0) {
 if (dateStr === todayStr) classes += ' deadline-today';
 else classes += ' has-deadline';
 }
+if (dayReminders.length > 0) classes += ' has-reminder';
 
 
 let dots = '';
@@ -1961,6 +2027,7 @@ const urgent = dayDeadlines.filter(o => normalizeStatus(o.status) !== 'completed
 if (urgent.length > 0 && dateStr === todayStr) dots += `<span class="cd-dot urgent" title="${urgent.length} deadline(s) today"></span>`;
 else dots += `<span class="cd-dot deadline" title="${dayDeadlines.length} deadline(s)"></span>`;
 }
+if (dayReminders.length > 0) dots += `<span class="cd-dot" style="background:var(--info);" title="${dayReminders.length} reminder(s)"></span>`;
 
 
 html += `<div class="${classes}" onclick="showCalendarDayDetail('${dateStr}')">
@@ -1975,6 +2042,7 @@ grid.innerHTML = html;
 
 
 function showCalendarDayDetail(dateStr) {
+selectedCalendarDate = dateStr;
 const uniqueOrders = deduplicateOrders(allOrders);
 const dayOrders = uniqueOrders.filter(o => {
 const orderDate = new Date(o.timestamp || o.createdAt || Date.now());
@@ -1982,6 +2050,7 @@ const orderDateStr = `${orderDate.getFullYear()}-${String(orderDate.getMonth()+1
 return orderDateStr === dateStr;
 });
 const dayDeadlines = uniqueOrders.filter(o => o.deadline === dateStr);
+const dayReminders = (reminders || []).filter(r => r.date === dateStr);
 
 
 const detail = document.getElementById('calendarDayDetail');
@@ -1992,9 +2061,19 @@ document.getElementById('calendarDetailDate').textContent = dateStr;
 let html = '';
 
 
-if (dayOrders.length === 0 && dayDeadlines.length === 0) {
-html = '<div style="text-align:center;color:var(--pink-light);padding:20px;">No orders or deadlines for this date</div>';
+if (dayOrders.length === 0 && dayDeadlines.length === 0 && dayReminders.length === 0) {
+html = '<div style="text-align:center;color:var(--pink-light);padding:20px;">No reminders, orders or deadlines for this date</div>';
 } else {
+dayReminders.forEach(r => {
+html += `<div class="cd-reminder-item">
+<div><strong><i class="fas fa-bell" style="color:var(--info);margin-right:6px;"></i>${escapeHtml(r.title)}</strong>
+${r.note ? `<small>${escapeHtml(r.note)}</small>` : ''}</div>
+<div class="rem-actions">
+<button class="btn-edit" onclick="openReminderModal('${dateStr}','${r.id}')" title="Edit reminder"><i class="fas fa-edit"></i></button>
+<button class="btn-del" onclick="deleteReminder('${r.id}')" title="Delete reminder"><i class="fas fa-trash"></i></button>
+</div>
+</div>`;
+});
 dayOrders.forEach(o => {
 html += `<div class="cd-order-item">
 <div><strong>${o.itemName}</strong>
@@ -2004,7 +2083,7 @@ html += `<div class="cd-order-item">
 });
 dayDeadlines.forEach(o => {
 const isUrgent = normalizeStatus(o.status) !== 'completed' && normalizeStatus(o.status) !== 'cancelled';
-html += `<div class="cd-order-item ${isUrgent ? 'urgent-item' : 'deadline-item'}">
+html += `<div class="cd-order-item ${isUrgent ? 'urgent-item' : 'deadline-item'}" style="cursor:pointer;" onclick="openOrderDetail('${o.orderId}')" title="Click to open order">
 <div><strong><i class="fas fa-bell"></i> Reminder: ${o.itemName}</strong>
 <small>${o.ign} — ${normalizeStatus(o.status)}</small></div>
 <span>₱${(o.total || 0).toLocaleString()}</span>
@@ -2013,10 +2092,9 @@ html += `<div class="cd-order-item ${isUrgent ? 'urgent-item' : 'deadline-item'}
 }
 
 
-list.innerHTML = html;
+list.innerHTML = html + `<button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:6px;padding:10px;" onclick="openReminderModal('${dateStr}')"><i class="fas fa-bell"></i> Add Reminder for this date</button>`;
 detail.classList.add('show');
 }
-
 
 function updateCalendarBadge() {
 const uniqueOrders = deduplicateOrders(allOrders);
@@ -2026,9 +2104,11 @@ const todayDeadlines = uniqueOrders.filter(o => {
 if (!o.deadline) return false;
 return o.deadline === todayStr && normalizeStatus(o.status) !== 'completed' && normalizeStatus(o.status) !== 'cancelled';
 });
+const todaysReminders = (reminders || []).filter(r => r.date === todayStr);
+const total = todayDeadlines.length + todaysReminders.length;
 const badge = document.getElementById('calendarBadge');
-if (todayDeadlines.length > 0) {
-badge.textContent = todayDeadlines.length;
+if (total > 0) {
+badge.textContent = total;
 badge.style.display = 'flex';
 } else {
 badge.style.display = 'none';
@@ -2040,20 +2120,28 @@ function checkDeadlines() {
 const uniqueOrders = deduplicateOrders(allOrders);
 const today = new Date();
 const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+// Standalone manual reminders + order reminders (Reminder Date sa orders)
+const todaysReminders = (reminders || []).filter(r => r.date === todayStr);
 const urgentOrders = uniqueOrders.filter(o => {
 if (!o.deadline) return false;
 return o.deadline === todayStr && normalizeStatus(o.status) !== 'completed' && normalizeStatus(o.status) !== 'cancelled';
 });
 
+const totalReminders = todaysReminders.length + urgentOrders.length;
 
-if (urgentOrders.length > 0) {
+// MAG-NONOTIFY LANG KAPAG MAY REMINDER — wala nang ibang nag-trigger ng sound
+if (totalReminders > 0) {
 const alertKey = `deadline-${todayStr}`;
 if (!shownDeadlineAlerts.has(alertKey)) {
 shownDeadlineAlerts.add(alertKey);
 const popup = document.getElementById('deadlinePopup');
-document.getElementById('deadlinePopupText').textContent = `You have ${urgentOrders.length} order(s) with a reminder for today!`;
+const parts = [];
+if (todaysReminders.length > 0) parts.push(`${todaysReminders.length} reminder(s)`);
+if (urgentOrders.length > 0) parts.push(`${urgentOrders.length} order deadline(s)`);
+document.getElementById('deadlinePopupText').textContent = `You have ${parts.join(' and ')} for today!`;
 popup.classList.add('show');
-// Play notification sound
+// Play notification sound — reminder lang
 if (notificationAudio) {
 notificationAudio.currentTime = 0;
 notificationAudio.play().catch(() => {});
@@ -2067,6 +2155,123 @@ updateCalendarBadge();
 function closeDeadlinePopup() {
 document.getElementById('deadlinePopup').classList.remove('show');
 if (notificationAudio) notificationAudio.pause();
+}
+
+
+// ===== MODAL STACK MANAGER — bagong modal sa front, dating modal nag-bbblur =====
+const modalStack = [];
+const MODAL_OVERLAY_SELECTOR = '.modal-overlay,.receipt-modal-overlay,.calendar-modal-overlay,.certificate-modal-overlay,.dashboard-modal-overlay,.poster-modal-overlay,.rewards-modal-overlay,.image-modal';
+function updateModalStack() {
+const actives = Array.from(document.querySelectorAll(MODAL_OVERLAY_SELECTOR)).filter(el => el.classList.contains('active'));
+actives.forEach(el => { if (!modalStack.includes(el)) modalStack.push(el); });
+for (let i = modalStack.length - 1; i >= 0; i--) { if (!modalStack[i].classList.contains('active')) modalStack.splice(i, 1); }
+modalStack.forEach((el, idx) => {
+el.style.zIndex = 8000 + idx;
+el.classList.toggle('modal-blurred', modalStack.length > 1 && idx !== modalStack.length - 1);
+});
+}
+try {
+const modalStackObserver = new MutationObserver(() => updateModalStack());
+modalStackObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+} catch(e) {}
+
+
+// ===== REMINDERS (manual create / edit / delete — Firebase synced, lahat ng devices) =====
+function startRemindersListener() {
+if (!db) return;
+remindersRef = db.ref('reminders');
+remindersRef.on('value', (snapshot) => {
+const list = [];
+snapshot.forEach((child) => { list.push({ id: child.key, ...child.val() }); });
+reminders = list;
+updateCalendarBadge();
+checkDeadlines();
+const overlay = document.getElementById('calendarModalOverlay');
+if (overlay && overlay.classList.contains('active')) renderCalendar();
+}, (error) => { console.log('reminders listener error:', error); });
+}
+
+
+function openReminderModal(dateStr, reminderId) {
+editingReminderId = reminderId || null;
+const title = document.getElementById('reminderModalTitle');
+const delBtn = document.getElementById('reminderDeleteBtn');
+if (reminderId) {
+const r = (reminders || []).find(x => x.id === reminderId);
+if (!r) return;
+title.innerHTML = '<i class="fas fa-bell"></i> Edit Reminder';
+document.getElementById('reminderTitle').value = r.title || '';
+document.getElementById('reminderDate').value = r.date || '';
+document.getElementById('reminderNote').value = r.note || '';
+delBtn.style.display = 'inline-flex';
+} else {
+title.innerHTML = '<i class="fas fa-bell"></i> Add Reminder';
+document.getElementById('reminderTitle').value = '';
+document.getElementById('reminderDate').value = dateStr || selectedCalendarDate || '';
+document.getElementById('reminderNote').value = '';
+delBtn.style.display = 'none';
+}
+document.getElementById('reminderModal').classList.add('active');
+}
+
+
+function closeReminderModal() {
+document.getElementById('reminderModal').classList.remove('active');
+editingReminderId = null;
+}
+
+
+function saveReminder() {
+const title = document.getElementById('reminderTitle').value.trim();
+const date = document.getElementById('reminderDate').value;
+const note = document.getElementById('reminderNote').value.trim();
+if (!title || !date) { showToast('Title and date are required', 'error'); return; }
+if (!db) { showToast('Firebase not connected!', 'error'); return; }
+const data = { title: title, date: date, note: note, updatedAt: Date.now() };
+let promise;
+if (editingReminderId) {
+promise = db.ref('reminders/' + editingReminderId).update(data);
+} else {
+data.createdAt = Date.now();
+promise = db.ref('reminders').push().set(data);
+}
+promise.then(() => {
+showToast(editingReminderId ? '✅ Reminder updated' : '✅ Reminder added', 'success');
+closeReminderModal();
+})
+.catch(err => showToast('Failed to save: ' + err.message, 'error'));
+}
+
+
+function deleteReminder(reminderId) {
+if (!db) { showToast('Firebase not connected!', 'error'); return; }
+if (!confirm('Delete this reminder?')) return;
+db.ref('reminders/' + reminderId).remove()
+.then(() => {
+showToast('Reminder deleted');
+if (editingReminderId === reminderId) closeReminderModal();
+})
+.catch(err => showToast('Failed to delete: ' + err.message, 'error'));
+}
+
+
+function deleteReminderFromModal() {
+if (editingReminderId) deleteReminder(editingReminderId);
+}
+
+
+// Burahin lahat ng LUMIPAS NA / dating reminders (past date) — one click
+function deleteAllPastReminders() {
+const today = new Date();
+const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+const past = (reminders || []).filter(r => r.date && r.date < todayStr);
+if (!past.length) { showToast('Walang past / dated reminders na dapat burahin'); return; }
+if (!confirm(`Delete all ${past.length} past reminder(s)?\n\nIto ay mga reminder na lumipas na ang date.`)) return;
+const updates = {};
+past.forEach(r => { updates[r.id] = null; });
+db.ref('reminders').update(updates)
+.then(() => showToast(`🗑️ ${past.length} past reminder(s) deleted`))
+.catch(err => showToast('Failed to delete: ' + err.message, 'error'));
 }
 
 
@@ -2569,7 +2774,7 @@ function showPendingAlert(count) {
 pendingAlertShown = true;
 document.getElementById('pendingAlertCount').textContent = count;
 document.getElementById('pendingAlertModal').classList.add('active');
-playNotificationSound();
+// WALANG notification sound dito — reminder lang ang nag-no-notify
 }
 
 
@@ -3098,7 +3303,7 @@ showToast(`📊 Exported ${uniqueOrders.length} orders to Excel`);
 
 document.addEventListener('keydown', (e) => {
 if (e.key === 'Escape') {
-closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal(); closePaymentMethodsModal(); closeSaveOptions();
+closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal(); closePaymentMethodsModal(); closeSaveOptions(); closeReminderModal();
 }
 });
 
