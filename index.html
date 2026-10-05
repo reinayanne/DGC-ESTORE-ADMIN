@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -938,6 +939,7 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -1632,6 +1634,14 @@ return allowed.includes(normalized) ? normalized : 'pending';
 
 
 function detectOrderType(order) {
+// ⭐ FIX: I-respeto ang DESIGNATED category — kung ang order ay galing sa
+// skinGifting/orders path sa Firebase (o eksplisitong naka-save sa skin_gifting
+// na firebase path), DAPAT skin gifting ang category niya — HINDI siya dapat
+// nahuhulog sa "diamonds" fallback dahil lang may gameId/serverId siya.
+// Ito ang dahilan kung bakit Skin Gifting filter + DIAMONDS badge/logo
+// ang lumalabas dati sa iisang order.
+if (order._source === 'skin_gifting') return 'skin_gifting';
+if (order.firebasePath && order.firebasePath.indexOf('skinGifting/') === 0) return 'skin_gifting';
 // Custom categories (galing sa Categories manager) — i-trust ang id
 const knownTypes = ['skin_gifting','squad_rental','squad','diamonds','tlobby','other'];
 if (order.type && !knownTypes.includes(order.type)) return order.type;
