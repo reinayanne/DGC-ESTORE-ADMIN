@@ -1676,18 +1676,30 @@ return 'diamonds';
 }
 
 
+// 🎨 CATEGORY ICON + COLOR MAP — Font Awesome icon sa DESIGNATED color ng
+// category (walang nang PNG logos). Synchronized sa CATEGORY_RAINBOW ng type
+// filter bar para magkatugma ang icon color at filter button color.
+function getCategoryIconMeta(type) {
+const known = {
+'skin_gifting': { icon: 'fa-paint-brush', c1: 'var(--skin-purple)', c2: 'var(--skin-purple-light)' },
+'squad': { icon: 'fa-users', c1: 'var(--teal-deep)', c2: 'var(--teal-light)' },
+'diamonds': { icon: 'fa-gem', c1: 'var(--pink)', c2: 'var(--pink-light)' },
+'tlobby': { icon: 'fa-trophy', c1: '#1e90ff', c2: '#70a1ff' },
+'other': { icon: 'fa-gamepad', c1: '#ff4757', c2: '#ff6b81' }
+};
+if (known[type]) return known[type];
+// Custom categories (⭐ starlight, at kahit anong bagong category) —
+// same rainbow color na ginagamit ng filter button nila
+const cats = getCategories();
+const idx = cats.findIndex(c => c.id === type);
+const color = (idx >= 0 && cats[idx].id !== 'skin_gifting') ? CATEGORY_RAINBOW[idx % CATEGORY_RAINBOW.length] : '#ff4fa3';
+return { icon: 'fa-tag', c1: color, c2: color };
+}
+
 function getProductImageHTML(order) {
 const orderType = detectOrderType(order);
-if (orderType === 'skin_gifting') {
-return `<div class="product-img skin-gifting"><i class="fas fa-paint-brush"></i></div>`;
-} else if (orderType === 'squad') {
-return `<img src="verifiedsquadlogo.png" alt="Verified Squad" style="width:48px;height:48px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(255,79,163,0.3);">`;
-} else if (orderType === 'diamonds') {
-return `<img src="diamondslogo.png" alt="Diamonds" style="width:48px;height:48px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(255,79,163,0.3);">`;
-} else {
-// Custom category (⭐ starlight, at kahit anong bagong category) — automatic (category)logo.png
-return `<img src="${orderType}logo.png" alt="${escapeHtml(orderType)}" style="width:48px;height:48px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(255,79,163,0.3);" onerror="this.onerror=null;this.outerHTML='<div class=&quot;product-img&quot;><i class=&quot;fas fa-tag&quot;></i></div>'">`;
-}
+const meta = getCategoryIconMeta(orderType);
+return `<div class="product-img" style="background:linear-gradient(135deg,${meta.c1} 0%,${meta.c2} 100%);box-shadow:0 4px 12px rgba(0,0,0,0.18);"><i class="fas ${meta.icon}"></i></div>`;
 }
 
 
@@ -1718,7 +1730,15 @@ if (!existing) {
 uniqueOrders.set(orderId, order);
 } else {
 const existingTimestamp = existing.timestamp || existing.updatedAt || existing.createdAt || 0;
-if (currentTimestamp > existingTimestamp) uniqueOrders.set(orderId, order);
+// ⭐ Dedupe hardening: kapag duplicate ang orderId sa dalawang Firebase paths
+// (orders/ at skinGifting/orders — common sa MGA DATING orders), unahin ang
+// skin_gifting source kapag same timestamp o mas bago ito — para ang dating
+// skin gift orders ay HINDI nagiging "diamonds" dahil sa diamonds-path copy.
+const newIsSkin = order._source === 'skin_gifting';
+const existingIsSkin = existing._source === 'skin_gifting';
+if (currentTimestamp > existingTimestamp || (newIsSkin && !existingIsSkin && currentTimestamp >= existingTimestamp)) {
+uniqueOrders.set(orderId, order);
+}
 }
 });
 return Array.from(uniqueOrders.values());
