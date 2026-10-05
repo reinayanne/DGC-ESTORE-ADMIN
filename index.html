@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -926,6 +927,8 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -1174,7 +1177,10 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 </div>
 <div class="form-group">
 <label class="form-label">Order Type / Category * <span style="color:var(--pink-light);font-size:11px;">(same sa Products categories)</span></label>
-<select class="form-select" id="orderTypeSelect"></select>
+<div style="display:flex;gap:8px;">
+<select class="form-select" id="orderTypeSelect" style="flex:1;"></select>
+<button type="button" class="btn-secondary" style="padding:10px 14px;border-radius:12px;" onclick="openOrderTypesModal()" title="Edit / add / delete order types"><i class="fas fa-gear"></i></button>
+</div>
 </div>
 <div class="form-group">
 <label class="form-label">Order Item *</label>
@@ -1445,6 +1451,7 @@ initFirebase();
 loadCustomersDB();
 renderCustomerSelect();
 renderCategorySelects();
+ensureStarlightCategory();
 renderPaymentMethodSelect();
 renderTypeFilterBar();
 document.getElementById('customerSelect').addEventListener('change', function() {
@@ -1764,7 +1771,7 @@ let deadline = data.deadline || null;
 
 return {
 orderId: data.orderId || data.id || `DGC-${Date.now()}`,
-itemName: isSquadRental ? `${data.squadShortName} - ${data.durationName}` : productName,
+itemName: isSquadRental ? [data.squadShortName, data.durationName].filter(v => v && String(v).trim() && String(v) !== 'undefined').join(' - ') || (data.itemName || data.item || productName || 'Squad Rental') : productName,
 quantity: parseInt(data.quantity) || 1,
 price: parseFloat(data.price) || 0,
 total: parseFloat(data.total) || parseFloat(data.totalAmount) || 0,
@@ -1885,41 +1892,96 @@ return customer;
 }
 
 
+let topCustomerPeriod = 'overall';
+function periodLabel(period) {
+const now = new Date();
+const mn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+if (period === 'monthly') return mn[now.getMonth()] + ' ' + now.getFullYear();
+if (period === 'yearly') return 'Year ' + now.getFullYear();
+return 'All Time';
+}
+function setTopCustomerPeriod(period) {
+topCustomerPeriod = period;
+updateTopCustomer();
+}
+function computePeriodTopCustomers(period) {
+const now = new Date();
+const orders = deduplicateOrders(allOrders).filter(o => normalizeStatus(o.status) === 'completed');
+const map = new Map();
+orders.forEach(o => {
+const d = new Date(o.timestamp || o.createdAt || Date.now());
+if (period === 'monthly' && (d.getFullYear() !== now.getFullYear() || d.getMonth() !== now.getMonth())) return;
+if (period === 'yearly' && d.getFullYear() !== now.getFullYear()) return;
+const entered = (o.enteredCustomerName || '').toString().trim();
+const custName = (o.customerName || '').toString().trim();
+const ign = (o.ign || '').toString().trim();
+let name = entered;
+if (!name && custName && custName !== 'Walk-in' && custName !== ign) name = custName;
+if (!name) return;
+if (!map.has(name)) map.set(name, { id: ((customersDB.find(x => x.name === name) || {}).id) || '', name: name, totalSpent: 0, orderCount: 0, completedCount: 0 });
+const c = map.get(name);
+c.totalSpent += (o.total || o.totalAmount || 0);
+c.orderCount++;
+c.completedCount++;
+});
+return Array.from(map.values()).sort((a, b) => b.totalSpent - a.totalSpent);
+}
+function showCustomerDetailByName(name) {
+const c = customersDB.find(x => x.name === decodeURIComponent(name));
+if (c) showCustomerDetail(c.id);
+}
+function showTopCustomerCertificateData(name, totalSpent, orderCount, completedCount, period) {
+document.getElementById('certRecipientName').textContent = decodeURIComponent(name) || 'Valued Customer';
+document.getElementById('certTitlePremium').innerHTML = '<i class="fas fa-crown"></i> TOP CUSTOMER AWARD';
+document.getElementById('certAchievement').innerHTML = 'For being our <strong>TOP 1 CUSTOMER (' + periodLabel(period).toUpperCase() + ')</strong> with outstanding loyalty and support';
+document.getElementById('certTotalSpent').textContent = '₱' + (totalSpent || 0).toLocaleString();
+document.getElementById('certOrderCount').textContent = orderCount || 0;
+document.getElementById('certCompletedCount').textContent = completedCount || 0;
+document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+document.getElementById('certificateModalOverlay').classList.add('active');
+}
 function updateTopCustomer() {
 syncCustomersWithOrders();
-const sorted = [...customersDB].sort((a, b) => b.totalSpent - a.totalSpent);
+const isOverall = topCustomerPeriod === 'overall';
+const sorted = isOverall
+? [...customersDB].sort((a, b) => b.totalSpent - a.totalSpent).map(c => ({ id: c.id, name: c.name, totalSpent: c.totalSpent, orderCount: c.orderCount, completedCount: c.completedCount }))
+: computePeriodTopCustomers(topCustomerPeriod);
 if (sorted.length > 0) {
 document.getElementById('topCustomerName').textContent = sorted[0].name;
 } else {
 document.getElementById('topCustomerName').textContent = 'No data';
 }
 const list = document.getElementById('topCustomerList');
+if (list.previousElementSibling) list.previousElementSibling.innerHTML = '<i class="fas fa-trophy"></i> Top Customers &mdash; ' + periodLabel(topCustomerPeriod);
+const tabBtn = (p, label) => `<button onclick="event.stopPropagation();setTopCustomerPeriod('${p}')" style="flex:1;padding:7px 4px;border-radius:10px;border:2px solid ${topCustomerPeriod===p?'var(--pink)':'rgba(255,79,163,0.2)'};background:${topCustomerPeriod===p?'linear-gradient(135deg,var(--pink),var(--pink-light))':'#fff'};color:${topCustomerPeriod===p?'#fff':'var(--pink)'};font-weight:800;font-size:11px;cursor:pointer;">${label}</button>`;
+const periodTabs = `<div style="display:flex;gap:6px;margin-bottom:10px;">${tabBtn('overall','Overall')}${tabBtn('monthly','This Month')}${tabBtn('yearly','This Year')}</div>`;
 if (sorted.length === 0) {
-list.innerHTML = '<div style="text-align:center;color:var(--pink-light);padding:10px;font-size:12px;">No customers yet</div>';
+list.innerHTML = periodTabs + '<div style="text-align:center;color:var(--pink-light);padding:10px;font-size:12px;">No customers yet</div>';
 } else {
 const rankColors = ['#FFD700','#C0C0C0','#CD7F32'];
 const rankIcons = ['fa-crown','fa-medal','fa-award'];
 const rankBg = ['linear-gradient(135deg,#FFD700 0%,#FFA500 100%)','linear-gradient(135deg,#C0C0C0 0%,#A0A0A0 100%)','linear-gradient(135deg,#CD7F32 0%,#B87333 100%)'];
-list.innerHTML = sorted.slice(0, 5).map((c, i) => {
+list.innerHTML = periodTabs + sorted.slice(0, 5).map((c, i) => {
 const isTop = i < 3;
 const rankStyle = isTop ? `color:${rankColors[i]};font-weight:800;text-shadow:0 2px 4px rgba(0,0,0,0.1);` : '';
 const rankBadge = isTop ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:${rankBg[i]};color:#fff;font-size:11px;margin-right:6px;"><i class="fas ${rankIcons[i]}"></i></span>` : `<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--pink-light);color:#fff;font-size:11px;margin-right:6px;">${i+1}</span>`;
-const clickAction = i === 0 ? `onclick="showTopCustomerCertificate('${c.id}')" style="cursor:pointer;border:2px solid var(--gold-base);background:linear-gradient(135deg,rgba(212,175,55,0.1) 0%,rgba(255,255,255,0.9) 100%);"` : `onclick="showCustomerDetail('${c.id}')"`;
+const encName = encodeURIComponent(c.name).replace(/'/g, '%27');
+const clickAction = i === 0 ? `onclick="showTopCustomerCertificateData('${encName}', ${c.totalSpent||0}, ${c.orderCount||0}, ${c.completedCount||0}, '${topCustomerPeriod}')" style="cursor:pointer;border:2px solid var(--gold-base);background:linear-gradient(135deg,rgba(212,175,55,0.1) 0%,rgba(255,255,255,0.9) 100%);"` : `onclick="showCustomerDetailByName('${encName}')"`;
+const actionBtns = c.id ? `<button class="btn-edit" onclick="editCustomer('${c.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+<button class="btn-delete" onclick="deleteCustomer('${c.id}')" title="Delete"><i class="fas fa-trash"></i></button>` : '';
 return `<div class="tc-item" ${clickAction}>
 <div class="tc-main">
 <span class="tc-name">${rankBadge}${escapeHtml(c.name)} ${i===0?'<i class="fas fa-certificate" style="color:var(--gold-base);margin-left:4px;"></i>':''}</span>
-<span class="tc-val" style="${rankStyle}">₱${c.totalSpent.toLocaleString()} (${c.completedCount})</span>
+<span class="tc-val" style="${rankStyle}">₱${(c.totalSpent||0).toLocaleString()} (${c.completedCount||0})</span>
 </div>
 <div class="customer-actions" onclick="event.stopPropagation()">
-<button class="btn-edit" onclick="editCustomer('${c.id}')" title="Edit"><i class="fas fa-edit"></i></button>
-<button class="btn-delete" onclick="deleteCustomer('${c.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+${actionBtns}
 </div>
 </div>`;
 }).join('') + '<button class="add-customer-btn" onclick="openAddCustomerModal()"><i class="fas fa-plus"></i> Add Customer</button>';
 }
 renderCustomerSelect();
 }
-
 
 function toggleTopCustomer() {
 document.getElementById('topCustomerDropdown').classList.toggle('show');
@@ -2307,8 +2369,45 @@ document.getElementById('cdFacebook').textContent = customer.socials?.facebook |
 document.getElementById('cdInstagram').textContent = customer.socials?.instagram || '-';
 document.getElementById('cdDiscord').textContent = customer.socials?.discord || '-';
 document.getElementById('cdNotes').textContent = customer.notes || '-';
+renderCustomerOrderHistory(customer);
 document.getElementById('customerDetailModal').classList.add('active');
 document.getElementById('topCustomerDropdown').classList.remove('show');
+}
+
+
+function renderCustomerOrderHistory(customer) {
+const box = document.getElementById('cdOrderHistory');
+if (!box) return;
+const orders = deduplicateOrders(allOrders).filter(o => {
+const n = (o.enteredCustomerName || o.customerName || '').toString().trim();
+return n && (n === customer.name || (customer.ign && n === customer.ign));
+}).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+if (!orders.length) {
+box.innerHTML = '<div style="margin-top:16px;padding:18px;text-align:center;color:var(--pink-light);font-style:italic;background:#fff5f9;border-radius:12px;border:1px dashed rgba(255,79,163,0.25);"><i class="fas fa-receipt"></i> No order history yet</div>';
+return;
+}
+box.innerHTML = '<div style="margin-top:18px;"><h4 style="color:var(--pink);font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px;"><i class="fas fa-receipt"></i> Order History (' + orders.length + ')</h4>' +
+orders.map(o => {
+const st = normalizeStatus(o.status);
+const paid = st === 'completed' || st === 'paid';
+return `<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(255,79,163,0.12);border-left:4px solid ${paid ? 'var(--success)' : 'var(--pink)'};border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:13px;flex-wrap:wrap;">
+<div style="flex:1;min-width:180px;">
+<div style="font-weight:800;color:var(--pink);">${escapeHtml(o.itemName || '-')} <span style="color:var(--pink-light);font-weight:600;font-size:11px;">\u00b7 ${new Date(o.timestamp || Date.now()).toLocaleDateString('en-PH')}</span></div>
+<div style="color:var(--pink-light);font-size:12px;">IGN: ${escapeHtml(o.ign || '-')} \u00b7 ID: ${escapeHtml(o.gameId || '-')} \u00b7 Server: ${escapeHtml(o.serverId || '-')} \u00b7 ${escapeHtml(o.paymentMethod || '')}</div>
+</div>
+<div style="font-weight:900;color:var(--teal-deep);white-space:nowrap;">₱${(o.total || o.totalAmount || 0).toLocaleString()}</div>
+<span class="status-badge ${st}" style="white-space:nowrap;">${st}</span>
+<button class="view-receipt-btn" style="padding:7px 12px;font-size:11px;white-space:nowrap;" onclick="viewReceiptForOrder('${o.orderId}')"><i class="fas fa-file-invoice"></i> Receipt</button>
+</div>`;
+}).join('') + '</div>';
+}
+
+
+function viewReceiptForOrder(orderId) {
+const order = allOrders.find(o => o.orderId === orderId);
+if (!order) { showToast('Order not found!', 'error'); return; }
+currentOrderId = orderId;
+viewCustomerReceipt();
 }
 
 
@@ -3303,7 +3402,7 @@ showToast(`📊 Exported ${uniqueOrders.length} orders to Excel`);
 
 document.addEventListener('keydown', (e) => {
 if (e.key === 'Escape') {
-closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal(); closePaymentMethodsModal(); closeSaveOptions(); closeReminderModal();
+closeModal(); closeImageModal(); closeConfirmModal(); dismissPendingAlert(); closeReceiptModal(); closeCalendarModal(); closeDeadlinePopup(); closeCustomerDetailModal(); closeCustomerEditModal(); closePaymentMethodsModal(); closeOrderTypesModal(); closeSaveOptions(); closeReminderModal();
 }
 });
 
@@ -3661,6 +3760,7 @@ function downloadInlineReceipt() {
 // ===== DYNAMIC CATEGORIES (shared: Products / Order Type / filters) =====
 const defaultCategories = [
 { id: 'diamonds', label: '💎 Diamonds' },
+{ id: 'starlight', label: '⭐ Starlight' },
 { id: 'skin_gifting', label: '🎨 Skin Gifting' },
 { id: 'squad', label: '👥 V-Squad' },
 { id: 'tlobby', label: '🏆 T-Lobby' },
@@ -3764,6 +3864,50 @@ function afterCategoriesChanged() {
 renderCategorySelects();
 renderTypeFilterBar();
 renderProductsPanel();
+}
+
+// ===== ORDER TYPES SETTINGS MODAL (connected sa Categories — iisa ang data) =====
+function openOrderTypesModal() {
+renderOrderTypesModal();
+document.getElementById('orderTypesModal').classList.add('active');
+}
+function closeOrderTypesModal() {
+document.getElementById('orderTypesModal').classList.remove('active');
+}
+function renderOrderTypesModal() {
+const cats = getCategories();
+const countByCat = {};
+getProductPriceList().forEach(p => { countByCat[p.category] = (countByCat[p.category] || 0) + 1; });
+document.getElementById('otList').innerHTML = cats.map(c => `
+<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+<input type="text" class="form-input" value="${escapeHtml(c.label)}" onchange="renameCategory('${c.id}', this.value);renderOrderTypesModal();">
+<button onclick="deleteCategory('${c.id}');renderOrderTypesModal();" title="Delete" style="width:38px;height:38px;flex-shrink:0;border-radius:10px;border:none;background:rgba(255,71,87,0.12);color:var(--danger);cursor:pointer;"><i class="fas fa-trash"></i></button>
+<span style="font-size:11px;color:var(--pink-light);white-space:nowrap;">${countByCat[c.id] || 0} product(s)</span>
+</div>`).join('') || '<div style="text-align:center;color:var(--pink-light);padding:12px;font-style:italic;">No order types</div>';
+}
+function addOrderTypeFromInput() {
+const input = document.getElementById('newOrderTypeInput');
+const label = (input.value || '').trim();
+if (!label) { showToast('Enter an order type name', 'error'); return; }
+const cats = getCategories();
+if (cats.some(c => c.label.toLowerCase() === label.toLowerCase())) { showToast('That type already exists', 'error'); return; }
+cats.push({ id: 'cat-' + Date.now().toString(36), label: label });
+saveCategories(cats);
+input.value = '';
+renderOrderTypesModal();
+afterCategoriesChanged();
+renderCategoriesPanel();
+showToast('Order type added');
+}
+
+// One-time migration: siguraduhin na may Starlight category kahit may saved data na
+function ensureStarlightCategory() {
+const cats = getCategories();
+if (!cats.some(c => c.id === 'starlight' || /starlight/i.test(c.label))) {
+cats.push({ id: 'starlight', label: '⭐ Starlight' });
+saveCategories(cats);
+afterCategoriesChanged();
+}
 }
 
 // ===== PAYMENT METHODS (editable / add / delete) =====
@@ -4917,6 +5061,7 @@ with outstanding loyalty and support</div>
 <tr><td>Discord</td><td id="cdDiscord">-</td></tr>
 <tr><td>Notes</td><td id="cdNotes">-</td></tr>
 </table>
+<div id="cdOrderHistory"></div>
 </div>
 <div class="modal-footer">
 <button class="btn btn-secondary" onclick="closeCustomerDetailModal()">Close</button>
@@ -4957,6 +5102,28 @@ with outstanding loyalty and support</div>
 </div>
 
 
+
+
+<!-- ===== ORDER TYPES SETTINGS MODAL ===== -->
+<div class="modal-overlay" id="orderTypesModal" onclick="if(event.target===this)closeOrderTypesModal()">
+<div class="modal" style="max-width:480px" onclick="event.stopPropagation()">
+<div class="modal-header">
+<h3 class="modal-title"><i class="fas fa-layer-group"></i> Order Types / Categories</h3>
+<button class="modal-close" onclick="closeOrderTypesModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<div id="otList"></div>
+<div style="display:flex;gap:10px;margin-top:6px;">
+<input type="text" class="form-input" id="newOrderTypeInput" placeholder="e.g. ⭐ Starlight" style="flex:1;">
+<button class="btn btn-primary" style="padding:10px 18px;font-size:13px;" onclick="addOrderTypeFromInput()"><i class="fas fa-plus"></i> Add</button>
+</div>
+<small style="color:var(--pink-light);display:block;margin-top:10px;"><i class="fas fa-info-circle"></i> Connected ito sa Categories ng Products Dashboard — kapag nag-add/edit/delete ka dito, automatic ding nagbabago doon at sa Order Type dropdown / filters. Lagyan ng emoji para may icon.</small>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closeOrderTypesModal()">Done</button>
+</div>
+</div>
+</div>
 
 
 <!-- ===== PAYMENT METHODS MODAL ===== -->
