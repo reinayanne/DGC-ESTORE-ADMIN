@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,6 +214,13 @@ cursor:pointer;font-size:13px;font-weight:600;transition:all 0.3s;display:flex;a
 .type-filter-btn.active{background:linear-gradient(135deg,var(--pink) 0%,var(--pink-light) 100%);color:#fff;box-shadow:0 4px 15px rgba(255,79,163,0.3)}
 .type-filter-btn.skin-gifting.active{background:linear-gradient(135deg,var(--skin-purple) 0%,var(--skin-purple-light) 100%);color:#fff;box-shadow:0 4px 15px rgba(139,92,246,0.3)}
 .type-filter-btn i{font-size:14px}
+/* 🌈 RAINBOW CATEGORY COLORS — bawat category may sariling kulay para organized */
+.type-filter-btn{border-left:4px solid transparent}
+.type-filter-btn .cat-dot{width:10px;height:10px;border-radius:50%;background:var(--cat-color,transparent);box-shadow:0 0 8px var(--cat-color,transparent);flex-shrink:0;transition:all .3s}
+.type-filter-btn:hover{border-left-color:var(--cat-color,var(--pink));background:rgba(255,79,163,0.1)}
+.type-filter-btn.active{background:var(--cat-color,linear-gradient(135deg,var(--pink) 0%,var(--pink-light) 100%));color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.18)}
+.type-filter-btn.active .cat-dot{background:#fff;box-shadow:none}
+.type-filter-btn.skin-gifting.active{background:linear-gradient(135deg,var(--skin-purple) 0%,var(--skin-purple-light) 100%);box-shadow:0 4px 15px rgba(139,92,246,0.3)}
 
 
 .search-box{position:relative;min-width:260px}
@@ -916,6 +924,7 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
@@ -1642,6 +1651,16 @@ if (itemName.includes('tlobby') || itemName.includes('tournament')) return 'tlob
 if (itemName.includes('diamond')) return 'diamonds';
 if (order.hero || order.productName || order.uid) return 'skin_gifting';
 if (order.squadDetails || order.squadId) return 'squad';
+// ⭐ DESIGNATED CATEGORY FIX — custom categories (e.g. Starlight): i-match muna ang item/category
+// name sa category labels BAGO ibagsak sa diamonds fallback. Hindi na napupunta sa diamonds
+// ang starlight orders kahit walang explicit type (galing sa customer form).
+const combinedText = [order.itemName, order.item, order.category, order.productName]
+.filter(v => typeof v === 'string' && v.trim()).join(' ').toLowerCase();
+for (const c of getCategories()) {
+if (knownTypes.includes(c.id)) continue;
+const keywords = c.label.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+if (keywords.length && keywords.some(k => combinedText.includes(k))) return c.id;
+}
 if (order.gameId && order.serverId) return 'diamonds';
 return 'diamonds';
 }
@@ -1656,8 +1675,8 @@ return `<img src="verifiedsquadlogo.png" alt="Verified Squad" style="width:48px;
 } else if (orderType === 'diamonds') {
 return `<img src="diamondslogo.png" alt="Diamonds" style="width:48px;height:48px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(255,79,163,0.3);">`;
 } else {
-// Custom category — generic tag icon
-return `<div class="product-img"><i class="fas fa-tag"></i></div>`;
+// Custom category (⭐ starlight, at kahit anong bagong category) — automatic (category)logo.png
+return `<img src="${orderType}logo.png" alt="${escapeHtml(orderType)}" style="width:48px;height:48px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(255,79,163,0.3);" onerror="this.onerror=null;this.outerHTML='<div class=&quot;product-img&quot;><i class=&quot;fas fa-tag&quot;></i></div>'">`;
 }
 }
 
@@ -3797,13 +3816,19 @@ f.innerHTML = '<option value="all">All Categories</option>' + cats.map(c => `<op
 f.value = (prev && (prev === 'all' || cats.some(c => c.id === prev))) ? prev : 'all';
 });
 }
+// 🌈 Rainbow palette — shared ng category filter buttons at sales pie chart
+const CATEGORY_RAINBOW = ['#ff4757','#ff7f50','#ffa502','#2ed573','#1e90ff','#a55eea','#ff6b81','#eccc68','#7bed9f','#70a1ff'];
+
 function renderTypeFilterBar() {
 const bar = document.getElementById('typeFilterBar');
 if (!bar) return;
 const cats = getCategories();
 if (currentTypeFilter !== 'all' && !cats.some(c => c.id === currentTypeFilter)) currentTypeFilter = 'all';
 bar.innerHTML = '<button class="type-filter-btn" data-type="all"><i class="fas fa-th-large"></i> All Types</button>' +
-cats.map(c => `<button class="type-filter-btn ${c.id === 'skin_gifting' ? 'skin-gifting' : ''}" data-type="${c.id}">${escapeHtml(c.label)}</button>`).join('');
+cats.map((c, i) => {
+const catColor = (c.id === 'skin_gifting') ? 'var(--skin-purple)' : CATEGORY_RAINBOW[i % CATEGORY_RAINBOW.length];
+return `<button class="type-filter-btn ${c.id === 'skin_gifting' ? 'skin-gifting' : ''}" data-type="${c.id}" style="--cat-color:${catColor}"><span class="cat-dot"></span>${escapeHtml(c.label)}</button>`;
+}).join('');
 bar.querySelectorAll('.type-filter-btn').forEach(btn => {
 btn.addEventListener('click', (e) => {
 bar.querySelectorAll('.type-filter-btn').forEach(b => b.classList.remove('active'));
@@ -4492,14 +4517,12 @@ document.getElementById('dashTopProduct').textContent = topProduct.length > 14 ?
 document.getElementById('dashProfitMargin').textContent = margin + '%';
 
 
-const catTotals = { 'Diamonds': 0, 'Skin Gifting': 0, 'Squad Rental': 0, 'Tournament Lobby': 0, 'Other Games': 0 };
+const catLabelMap = { diamonds: 'Diamonds', skin_gifting: 'Skin Gifting', squad: 'Squad Rental', tlobby: 'Tournament Lobby', other: 'Other Games' };
+const catTotals = {};
 completedOrders.forEach(o => {
 const amt = o.total || o.totalAmount || 0;
-if (o.orderType === 'diamonds') catTotals['Diamonds'] += amt;
-else if (o.orderType === 'skin_gifting') catTotals['Skin Gifting'] += amt;
-else if (o.orderType === 'squad') catTotals['Squad Rental'] += amt;
-else if (o.orderType === 'tlobby') catTotals['Tournament Lobby'] += amt;
-else if (o.orderType === 'other') catTotals['Other Games'] += amt;
+const catKey = catLabelMap[o.orderType] || getCategoryLabel(o.orderType);
+catTotals[catKey] = (catTotals[catKey] || 0) + amt;
 });
 
 
@@ -4512,7 +4535,7 @@ data: {
 labels: Object.keys(catTotals),
 datasets: [{
 data: Object.values(catTotals),
-backgroundColor: ['#ff4fa3', '#8b5cf6', '#0d5d65', '#2ed573', '#ff4757'],
+backgroundColor: Object.keys(catTotals).map((_, i) => CATEGORY_RAINBOW[i % CATEGORY_RAINBOW.length]),
 borderColor: '#fff',
 borderWidth: 3
 }]
