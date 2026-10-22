@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -924,8 +925,145 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
 .calendar-reminder-add-btn{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;cursor:pointer;font-size:15px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
 .calendar-reminder-add-btn:hover{background:#fff;color:var(--pink);transform:scale(1.1);}
 
+
+/* ===== TOURNAMENT BRACKET (DARK TEAL & GOLD) ===== */
+.tourney-modal-overlay{position:fixed;inset:0;background:rgba(7,46,51,.78);backdrop-filter:blur(14px);z-index:5000;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.tourney-modal-overlay.active{display:flex}
+.tourney-modal{width:100%;max-width:1150px;max-height:94vh;overflow:hidden;background:#fff;border-radius:26px;box-shadow:0 30px 120px rgba(0,0,0,.45);border:2px solid rgba(212,175,55,.5);display:flex;flex-direction:column;animation:tPop .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tPop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.tourney-head{background:linear-gradient(135deg,#072e33 0%,var(--teal-deep) 55%,var(--teal-light) 100%);color:#fff;padding:20px 26px;display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:3px solid var(--gold-base)}
+.tourney-head h3{font-size:21px;font-weight:800;display:flex;align-items:center;gap:10px}
+.tourney-head h3 i{color:var(--gold-base)}
+.tourney-tabs{display:flex;gap:8px;flex-wrap:wrap;padding:16px 22px 0;background:#f8fbfb;border-bottom:1px solid rgba(13,93,101,.1)}
+.tourney-tab{border:1px solid rgba(13,93,101,.15);background:#fff;color:var(--teal-deep);padding:11px 18px;border-radius:14px;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .25s}
+.tourney-tab i{color:var(--gold-base)}
+.tourney-tab.active{background:linear-gradient(135deg,var(--teal-light),var(--teal-deep));color:#fff;border-color:transparent;box-shadow:0 5px 18px rgba(13,93,101,.25)}
+.tourney-tab.active i{color:var(--gold-base)}
+.tourney-body{padding:22px;overflow-y:auto;flex:1;background:#fff}
+.tourney-panel{display:none}.tourney-panel.active{display:block;animation:fadeIn .3s ease}
+.tourney-meta{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:18px}
+@media(max-width:700px){.tourney-meta{grid-template-columns:1fr}}
+.tourney-label{font-size:11px;font-weight:800;color:var(--teal-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tourney-input{width:100%;padding:12px 14px;border:2px solid rgba(13,93,101,.15);border-radius:12px;font-family:inherit;font-size:14px;color:var(--teal-deep);outline:none;transition:all .2s;background:#fff}
+.tourney-input:focus{border-color:var(--gold-base);box-shadow:0 0 0 4px rgba(212,175,55,.12)}
+.tourney-textarea{width:100%;min-height:150px;padding:14px;border:2px dashed rgba(212,175,55,.5);border-radius:16px;background:linear-gradient(135deg,rgba(212,175,55,.04),rgba(13,93,101,.03));color:var(--teal-deep);font-family:inherit;font-size:14px;line-height:1.7;resize:vertical;outline:none}
+.tourney-textarea:focus{border-color:var(--gold-base);background:#fff}
+.tourney-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:12px;border:none;font-weight:800;font-size:13px;cursor:pointer;transition:all .25s;text-transform:uppercase;letter-spacing:.5px}
+.tourney-btn-gold{background:linear-gradient(135deg,var(--gold-base) 0%,#b8941f 100%);color:#072e33;box-shadow:0 4px 15px rgba(212,175,55,.4)}
+.tourney-btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(212,175,55,.5)}
+.tourney-btn-teal{background:linear-gradient(135deg,var(--teal-light),var(--teal-deep));color:#fff;box-shadow:0 4px 15px rgba(13,93,101,.3)}
+.tourney-btn-teal:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(13,93,101,.4)}
+.tourney-btn-outline{background:#fff;color:var(--teal-deep);border:2px solid rgba(13,93,101,.25)}
+.tourney-btn-outline:hover{border-color:var(--gold-base);color:#9a7a16}
+.tourney-hint{font-size:12px;color:var(--teal-light);margin-top:8px;display:flex;align-items:center;gap:6px}
+.tourney-hint i{color:var(--gold-base)}
+.tourney-players{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:14px}
+.t-player{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#fdfcf8,#f4f9f8);border:1px solid rgba(212,175,55,.3);border-radius:12px;padding:10px 12px;cursor:grab;transition:all .2s;user-select:none}
+.t-player:hover{border-color:var(--gold-base);box-shadow:0 4px 14px rgba(212,175,55,.2);transform:translateY(-2px)}
+.t-player:active{cursor:grabbing}
+.t-seed{width:26px;height:26px;flex-shrink:0;border-radius:8px;background:linear-gradient(135deg,var(--teal-deep),var(--teal-light));color:var(--gold-base);font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
+.t-pname{flex:1;font-weight:700;color:var(--teal-deep);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-del{width:26px;height:26px;flex-shrink:0;border-radius:8px;border:none;background:rgba(255,71,87,.1);color:var(--danger);cursor:pointer;font-size:11px;transition:all .2s}
+.t-del:hover{background:var(--danger);color:#fff}
+.tourney-empty{text-align:center;padding:26px;color:#8a999b;font-style:italic;font-size:13px;background:#f8fbfb;border-radius:14px;border:1px dashed rgba(13,93,101,.15)}
+/* bracket */
+.tourney-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.tourney-cols{display:flex;gap:26px;overflow-x:auto;padding:10px 4px 18px;align-items:stretch;background:linear-gradient(135deg,#072e33 0%,#0a4a52 60%,var(--teal-deep) 100%);border-radius:20px;border:2px solid rgba(212,175,55,.35)}
+.tourney-round{display:flex;flex-direction:column;justify-content:space-around;gap:16px;min-width:185px;flex-shrink:0;padding:6px 0}
+.t-round-title{text-align:center;font-size:11px;font-weight:900;letter-spacing:1.5px;color:var(--gold-base);text-transform:uppercase;padding-bottom:2px}
+.t-match{background:linear-gradient(135deg,#0a4a52,#0d5d65);border:1.5px solid rgba(212,175,55,.45);border-radius:14px;padding:6px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.t-p{padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;color:#7fa8ad;background:rgba(255,255,255,.04);display:flex;align-items:center;gap:7px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;transition:all .2s}
+.t-p.t-empty{font-style:italic;color:#4d7075}
+.t-p.t-click{cursor:pointer}
+.t-p.t-click:hover{background:rgba(212,175,55,.15);color:#fff}
+.t-p.t-won{background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.1));color:var(--gold-base);border:1px solid rgba(212,175,55,.6);box-shadow:0 0 14px rgba(212,175,55,.25)}
+.t-p.t-won i{color:var(--gold-base);font-size:11px}
+.t-match-vs{text-align:center;font-size:9px;font-weight:900;color:#4d7075;letter-spacing:2px;padding:2px 0}
+.t-bye-tag{color:var(--gold-base);font-size:8px;letter-spacing:1px}
+.t-champ-box{min-height:120px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:16px;border:2px dashed rgba(212,175,55,.4);color:#4d7075;font-size:32px}
+.t-champ-won{background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.08));border:2px solid var(--gold-base);color:var(--gold-base);box-shadow:0 0 30px rgba(212,175,55,.35);animation:tGlow 2s infinite}
+.t-champ-won i{font-size:38px;filter:drop-shadow(0 4px 10px rgba(212,175,55,.5))}
+.t-champ-won div{font-weight:900;font-size:15px;word-break:break-word}
+@keyframes tGlow{0%,100%{box-shadow:0 0 20px rgba(212,175,55,.25)}50%{box-shadow:0 0 45px rgba(212,175,55,.5)}}
+.t-tbd{font-size:40px;font-weight:900;opacity:.4}
+/* awards */
+.tourney-award-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.tourney-award-card{background:linear-gradient(135deg,#fdfcf8,#f4f9f8);border:1px solid rgba(212,175,55,.3);border-radius:18px;padding:20px;text-align:center;transition:all .25s}
+.tourney-award-card:hover{transform:translateY(-4px);box-shadow:0 12px 35px rgba(212,175,55,.25);border-color:var(--gold-base)}
+.tourney-award-card i{font-size:38px;margin-bottom:10px}
+.tourney-award-card .aw-name{font-weight:900;color:var(--teal-deep);font-size:16px;margin-bottom:4px}
+.tourney-award-card .aw-sub{font-size:12px;color:var(--teal-light);margin-bottom:14px}
+.aw-gold{color:var(--gold-base);text-shadow:0 3px 12px rgba(212,175,55,.4)}
+.aw-silver{color:#9fb2b5}
+.aw-bronze{color:#cd7f32}
+.aw-all{color:var(--teal-light)}
+/* trophy card */
+.trophy-overlay{position:fixed;inset:0;background:rgba(7,46,51,.85);backdrop-filter:blur(16px);z-index:5800;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.trophy-overlay.active{display:flex}
+.trophy-card{width:100%;max-width:440px;background:linear-gradient(135deg,#0a4a52 0%,var(--teal-deep) 45%,var(--teal-light) 100%);border:3px solid var(--gold-base);border-radius:28px;padding:40px 30px 34px;text-align:center;color:#fff;box-shadow:0 25px 90px rgba(13,93,101,.6);position:relative;overflow:hidden;margin:0 auto}
+.trophy-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(212,175,55,.15) 0%,transparent 70%);animation:shimmerRotate 6s linear infinite}
+.trophy-card>*{position:relative;z-index:1}
+.trophy-logo{height:58px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+.trophy-kicker{font-size:12px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--gold-base);margin-bottom:14px}
+.trophy-icon{font-size:110px;color:var(--gold-base);text-shadow:0 8px 30px rgba(212,175,55,.55);animation:tBounce 2.2s ease-in-out infinite;margin:8px 0 16px}
+@keyframes tBounce{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.08) rotate(2deg)}}
+.trophy-name{font-size:34px;font-weight:900;color:var(--gold-base);text-shadow:0 4px 16px rgba(0,0,0,.4);line-height:1.15;word-break:break-word;margin-bottom:6px}
+.trophy-event{font-size:15px;font-weight:700;opacity:.95;margin-bottom:4px}
+.trophy-date{font-size:13px;color:var(--gold-base);font-weight:600;margin-bottom:16px}
+.trophy-foot{margin-top:14px;font-size:12px;letter-spacing:2px;opacity:.85;border-top:1px solid rgba(212,175,55,.4);padding-top:14px;text-transform:uppercase}
+.tourney-shuffle-top{width:38px;height:38px;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:rgba(255,255,255,.12);color:var(--gold-base);cursor:pointer;font-size:15px;transition:all .2s}
+.tourney-shuffle-top:hover{background:var(--gold-base);color:#072e33;transform:rotate(180deg)}
+
+
+/* ===== TOURNAMENT v2 — aligned bracket, lines, logo, poster ===== */
+.t-bracket-scroll{overflow:auto;padding:14px 10px 18px;background:linear-gradient(135deg,#072e33 0%,#0a4a52 60%,var(--teal-deep) 100%);border-radius:20px;border:2px solid rgba(212,175,55,.35);}
+.t-bracket-head{display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.25);border-radius:14px;margin-bottom:12px;}
+.t-bracket-head img{height:46px;width:46px;border-radius:50%;border:2px solid var(--gold-base);object-fit:cover;background:#fff;}
+.t-bh-title{font-size:17px;font-weight:900;color:#fff;line-height:1.2;}
+.t-bh-sub{font-size:12px;color:var(--gold-base);font-weight:700;letter-spacing:1px;}
+.t-rounds-head{white-space:nowrap;margin-bottom:4px;}
+.t-rounds-head span{display:inline-block;font-size:11px;font-weight:900;letter-spacing:1.5px;color:var(--gold-base);text-transform:uppercase;text-align:center;}
+.t-bracket-area{position:relative;}
+.t-lines{position:absolute;inset:0;pointer-events:none;z-index:1;}
+.t-match-v2{position:absolute;z-index:2;background:linear-gradient(135deg,#0a4a52,#0d5d65);border:1.5px solid rgba(212,175,55,.45);border-radius:14px;padding:6px;box-shadow:0 6px 18px rgba(0,0,0,.3);}
+.t-p2{padding:9px 12px;border-radius:10px;font-size:13px;font-weight:700;color:#7fa8ad;background:rgba(255,255,255,.04);display:flex;align-items:center;gap:7px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;transition:all .2s;}
+.t-p2.t-empty{font-style:italic;color:#4d7075;}
+.t-p2.t-click{cursor:pointer;}
+.t-p2.t-click:hover{background:rgba(212,175,55,.15);color:#fff;}
+.t-p2.t-won{background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.1));color:var(--gold-base);border:1px solid rgba(212,175,55,.6);box-shadow:0 0 14px rgba(212,175,55,.25);}
+.t-p2.t-won i{color:var(--gold-base);font-size:11px;}
+.t-champ-col{background:transparent;border:none;box-shadow:none;text-align:center;}
+.t-champ-col .t-champ-box{width:100%;}
+.t-champ-logo{height:42px;margin-bottom:6px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35));}
+.t-champ-reward{margin-top:8px;font-size:12px;font-weight:800;color:var(--gold-base);background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.4);border-radius:10px;padding:6px 10px;display:inline-block;}
+.t-name-input{flex:1;min-width:0;padding:6px 10px;border-radius:8px;border:2px solid var(--gold-base);background:#fff;color:var(--teal-deep);font-weight:700;font-size:13px;outline:none;}
+.t-edit{width:26px;height:26px;flex-shrink:0;border-radius:8px;border:none;background:rgba(212,175,55,.15);color:var(--gold-base);cursor:pointer;font-size:11px;transition:all .2s;}
+.t-edit:hover{background:var(--gold-base);color:#072e33;}
+.t-logo-row{display:flex;align-items:center;gap:14px;margin-top:6px;background:rgba(212,175,55,.05);border:1.5px dashed rgba(212,175,55,.4);border-radius:14px;padding:12px 14px;flex-wrap:wrap;}
+.t-logo-row img{width:54px;height:54px;border-radius:50%;border:2px solid var(--gold-base);object-fit:cover;background:#fff;}
+.t-logo-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.t-logo-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1.5px solid rgba(13,93,101,.3);background:#fff;color:var(--teal-deep);font-weight:800;font-size:12px;cursor:pointer;transition:all .2s;}
+.t-logo-btn:hover{border-color:var(--gold-base);color:#9a7a16;}
+.t-logo-btn.danger{border-color:rgba(255,71,87,.4);color:var(--danger);}
+.trw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:6px;}
+.t-poster-wrap{display:flex;justify-content:center;padding:10px 0 20px;}
+.t-poster{width:100%;max-width:440px;background:linear-gradient(135deg,#072e33 0%,var(--teal-deep) 50%,var(--teal-light) 100%);border:3px solid var(--gold-base);border-radius:26px;padding:38px 28px;text-align:center;color:#fff;box-shadow:0 25px 80px rgba(13,93,101,.55);position:relative;overflow:hidden;}
+.t-poster::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(212,175,55,.14) 0%,transparent 70%);animation:shimmerRotate 6s linear infinite;}
+.t-poster>*{position:relative;z-index:1;}
+.t-poster-logo{height:64px;margin-bottom:14px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35));}
+.t-poster-kicker{font-size:13px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--gold-base);margin-bottom:10px;}
+.t-poster-title{font-size:30px;font-weight:900;margin-bottom:8px;line-height:1.2;text-shadow:0 4px 16px rgba(0,0,0,.35);word-break:break-word;}
+.t-poster-when{font-size:15px;font-weight:700;color:var(--gold-base);margin-bottom:18px;}
+.t-poster-rewards{background:rgba(255,255,255,.06);border:2px solid rgba(212,175,55,.5);border-radius:18px;padding:16px 18px;margin:6px 0 18px;text-align:left;}
+.t-poster-rewards div{font-size:14px;font-weight:700;margin-bottom:6px;}
+.t-poster-rewards div:last-child{margin-bottom:0;}
+.t-poster-cta{display:inline-block;background:linear-gradient(135deg,var(--gold-base) 0%,#b8941f 100%);color:#072e33;padding:12px 34px;border-radius:30px;font-weight:900;font-size:16px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 6px 20px rgba(212,175,55,.4);}
+.t-poster-foot{margin-top:16px;font-size:11px;letter-spacing:2px;opacity:.85;text-transform:uppercase;border-top:1px solid rgba(212,175,55,.4);padding-top:12px;}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<base target="_blank">
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
@@ -1153,6 +1291,7 @@ display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,210,106,0.4
     <button onclick="openCustomersListModal()" title="View All Customers"><i class="fas fa-users"></i></button>
 <button onclick="openDiscountPosterBuilderModal()" title="Create Discount Poster"><i class="fas fa-bullhorn"></i></button>
 <button onclick="openRewardsCenter()" title="Wheel • Rewards • Quotas"><i class="fas fa-gift"></i></button>
+<button onclick="openTournament()" title="Tournament Bracket"><i class="fas fa-trophy"></i></button>
 </div>
 </header>
 
@@ -4842,6 +4981,558 @@ function downloadDiscountPoster() {
     .finally(() => { if (bar) bar.style.visibility = ''; });
 }
 
+
+
+// ===== TOURNAMENT BRACKET v2 (DARK TEAL & GOLD) — manual picks, aligned bracket, lines, logo, rewards, poster =====
+const TKEY='dgc_tournament_v1';
+let T={title:'DGC eStore Tournament',players:[],matches:[],dateStr:'',timeStr:'',logo:'',posterNote:'',posterCta:'',rewards:{champ:'',runner:'',semi:'',participant:''}};
+let tDragIdx=null;
+let tEditingPlayerIdx=null;
+let certAllBusy=false;
+
+const T_DEFAULT_LOGO='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="#0d5d65"/><circle cx="60" cy="60" r="56" fill="none" stroke="#d4af37" stroke-width="5"/><path d="M42 32h36v9c0 15-8 25-18 25S42 56 42 41z" fill="#d4af37"/><path d="M42 37c-10 0-15 6-15 13 0 8 7 12 15 12M78 37c10 0 15 6 15 13 0 8-7 12-15 12" stroke="#d4af37" stroke-width="6" fill="none"/><rect x="55" y="64" width="10" height="13" fill="#d4af37"/><rect x="42" y="79" width="36" height="9" rx="3" fill="#d4af37"/></svg>');
+
+function tGetLogo(){return (T.logo&&T.logo.length>10)?T.logo:T_DEFAULT_LOGO;}
+
+// ===== CERTIFICATE HELPERS (dynamic stats + logo — hindi na tinatouch ang ibang certificate users) =====
+const CERT_STORE_LOGO='https://i.imgur.com/jiS3Xh7.png';
+function certSetLogo(src){const img=document.querySelector('.cert-logo-box img');if(img)img.src=src;}
+function certShowStats(rows){
+const block=document.getElementById('certStatsBlock');
+if(!block)return;
+if(!rows){block.style.display='none';return;}
+block.style.display='flex';
+const map=[['certTotalSpent','certLabel1'],['certOrderCount','certLabel2'],['certCompletedCount','certLabel3']];
+map.forEach((ids,i)=>{
+if(!rows[i])return;
+document.getElementById(ids[0]).textContent=rows[i].v;
+document.getElementById(ids[1]).textContent=rows[i].l;
+});
+}
+['showTopCustomerCertificate','showTopCustomerCertificateData','showWheelCertificate','showRewardCertificate','showQuotaCertificate'].forEach(fn=>{
+if(typeof window[fn]==='function'){
+const _orig=window[fn];
+window[fn]=function(){
+certSetLogo(CERT_STORE_LOGO);
+certShowStats([{v:'—',l:'Total Spent'},{v:'—',l:'Orders'},{v:'—',l:'Completed'}]);
+return _orig.apply(this,arguments);
+};
+}
+});
+
+function tSave(){try{localStorage.setItem(TKEY,JSON.stringify(T))}catch(e){}}
+function tLoad(){
+try{const s=localStorage.getItem(TKEY);if(s){const d=JSON.parse(s);if(d&&Array.isArray(d.players))T=d;}}catch(e){}
+T.players=T.players||[];T.matches=T.matches||[];
+T.rewards=Object.assign({champ:'',runner:'',semi:'',participant:''},T.rewards||{});
+T.logo=T.logo||'';T.posterNote=T.posterNote||'';T.posterCta=T.posterCta||'';
+}
+function tVal(id){const el=document.getElementById(id);return el?(el.value||'').trim():'';}
+
+function openTournament(){
+tLoad();
+const map={tourneyTitleInput:T.title,tourneyDateInput:T.dateStr,tourneyTimeInput:T.timeStr,tourneyPosterNote:T.posterNote,tourneyPosterCta:T.posterCta,trwChamp:T.rewards.champ,trwRunner:T.rewards.runner,trwSemi:T.rewards.semi,trwParticipant:T.rewards.participant};
+Object.keys(map).forEach(id=>{const el=document.getElementById(id);if(el)el.value=map[id]||'';});
+tRenderLogoPreview();
+document.getElementById('tourneyModalOverlay').classList.add('active');
+tRenderPlayers();
+tRenderPoster();
+tSwitchTab(T.players.length?'bracket':'setup');
+}
+function closeTournamentModal(){document.getElementById('tourneyModalOverlay').classList.remove('active');}
+function tSwitchTab(tab){
+document.querySelectorAll('.tourney-tab').forEach(b=>b.classList.toggle('active',b.dataset.ttab===tab));
+document.querySelectorAll('.tourney-panel').forEach(p=>p.classList.remove('active'));
+const panel=document.getElementById('tourney'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Panel');
+if(panel)panel.classList.add('active');
+if(tab==='bracket')tRenderBracket();
+if(tab==='awards')tRenderAwards();
+if(tab==='poster')tRenderPoster();
+}
+function tSetMeta(){
+T.title=tVal('tourneyTitleInput')||'DGC eStore Tournament';
+T.dateStr=tVal('tourneyDateInput');T.timeStr=tVal('tourneyTimeInput');
+T.posterNote=tVal('tourneyPosterNote');T.posterCta=tVal('tourneyPosterCta');
+T.rewards={champ:tVal('trwChamp'),runner:tVal('trwRunner'),semi:tVal('trwSemi'),participant:tVal('trwParticipant')};
+tSave();
+}
+
+// ===== LOGO =====
+function tRenderLogoPreview(){const img=document.getElementById('tourneyLogoPreview');if(img)img.src=tGetLogo();}
+function tOnLogoSelected(input){
+const f=input.files&&input.files[0];if(!f)return;
+const rd=new FileReader();
+rd.onload=e=>{T.logo=e.target.result;tSave();tRenderLogoPreview();tRenderPoster();showToast('Tournament logo updated');};
+rd.readAsDataURL(f);
+}
+function tRemoveLogo(){T.logo='';tSave();tRenderLogoPreview();tRenderPoster();showToast('Logo removed — default trophy logo gamit');}
+
+// ===== PARSE PASTED LIST =====
+function tParseList(){
+const raw=document.getElementById('tourneyPaste').value;
+if(!raw||!raw.trim()){showToast('Paste a player list first','error');return}
+const text=normalizeText(raw);
+let names=[];
+const range=text.trim().match(/^(\d+)\s*[-\u2013\u2014]\s*(\d+)$/);
+if(range){
+const a=parseInt(range[1]),b=parseInt(range[2]);
+const lo=Math.min(a,b),hi=Math.max(a,b);
+if(hi-lo>255){showToast('Max 256 players allowed','error');return}
+for(let i=lo;i<=hi;i++)names.push('Player '+i);
+}else{
+text.split(/\n+/).forEach(line=>{
+let l=line.trim();
+l=l.replace(/^\s*(?:\d+|[A-Za-z])\s*[\.\)\-\u2013\u2014:\u2022]\s*/,'');
+l=l.replace(/^[\s"''`\u2018\u2019\u201C\u201D\u25CF\u25AA\u2022]+/,'').trim();
+if(l)names.push(l);
+});
+}
+const seen=new Set();
+names=names.filter(n=>{const k=n.toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
+if(names.length<2){showToast('Need at least 2 players — check the pasted list','error');return}
+T.players=names;
+tSetMeta();
+tSave();
+tRenderPlayers();
+tGenBracketSilent();
+showToast('✅ '+names.length+' players parsed — bracket generated!');
+}
+function tAddOne(){
+const inp=document.getElementById('tourneySingleName');
+const v=(inp.value||'').trim();
+if(!v){showToast('Enter a player name','error');return}
+if(T.players.some(p=>p.toLowerCase()===v.toLowerCase())){showToast('Duplicate name','error');return}
+T.players.push(v);inp.value='';
+tSave();tRenderPlayers();
+}
+function tRemovePlayer(i){
+T.players.splice(i,1);
+tSave();tRenderPlayers();
+if(T.matches.length)tGenBracketSilent();
+}
+function tStartEditPlayer(i){tEditingPlayerIdx=i;tRenderPlayers();}
+function tSavePlayerEdit(i){
+if(tEditingPlayerIdx!==i)return;
+const inp=document.getElementById('tNameEdit');
+if(!inp){tEditingPlayerIdx=null;return;}
+const v=(inp.value||'').trim();
+tEditingPlayerIdx=null;
+if(v&&v!==T.players[i]){
+T.players[i]=v;tSave();
+if(T.matches.length)tGenBracketSilent();
+showToast('Player renamed to "'+v+'"');
+}
+tRenderPlayers();
+}
+function tClearPlayers(){
+if(!T.players.length)return;
+if(!confirm('Clear all '+T.players.length+' players and the bracket?'))return;
+T.players=[];T.matches=[];
+tSave();tRenderPlayers();
+document.getElementById('tourneyBracket').innerHTML='<div class="tourney-empty">No bracket yet — go to <b>Setup &amp; Players</b> and generate.</div>';
+}
+function tShuffle(){
+if(T.players.length<2){showToast('Add players first','error');return}
+for(let i=T.players.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const tmp=T.players[i];T.players[i]=T.players[j];T.players[j]=tmp;}
+tSave();tRenderPlayers();
+if(T.matches.length)tGenBracketSilent();
+showToast('🔀 Shuffled!');
+}
+function tDragStart(i){tDragIdx=i;event.dataTransfer.effectAllowed='move';}
+function tDragOver(ev){ev.preventDefault();}
+function tDrop(i){
+if(tDragIdx==null||tDragIdx===i){tDragIdx=null;return}
+const mv=T.players.splice(tDragIdx,1)[0];
+T.players.splice(i,0,mv);
+tDragIdx=null;
+tSave();tRenderPlayers();
+if(T.matches.length)tGenBracketSilent();
+}
+function tRenderPlayers(){
+const box=document.getElementById('tourneyPlayers');
+const n=T.players.length;
+document.getElementById('tourneyCount').textContent=n+' player'+(n===1?'':'s')+(n>=2?' • bracket size '+tNextPow2(n):'');
+if(!n){box.innerHTML='<div class="tourney-empty">No players yet — paste a list above or add manually.</div>';return;}
+box.innerHTML=T.players.map((p,i)=>{
+const editing=tEditingPlayerIdx===i;
+const nameHtml=editing
+?'<input type="text" class="t-name-input" id="tNameEdit" value="'+escapeHtml(p)+'" onkeydown="if(event.key===\'Enter\')tSavePlayerEdit('+i+')" onblur="tSavePlayerEdit('+i+')">'
+:'<span class="t-pname" ondblclick="tStartEditPlayer('+i+')" title="Double-click to edit">'+escapeHtml(p)+'</span>';
+return '<div class="t-player" draggable="'+(editing?'false':'true')+'" ondragstart="tDragStart('+i+')" ondragover="tDragOver(event)" ondrop="tDrop('+i+')" ondragend="tDragIdx=null">'+
+'<span class="t-seed">'+(i+1)+'</span>'+nameHtml+
+'<button class="t-edit" onclick="tStartEditPlayer('+i+')" title="Edit name"><i class="fas fa-pen"></i></button>'+
+'<button class="t-del" onclick="tRemovePlayer('+i+')" title="Remove"><i class="fas fa-times"></i></button></div>';
+}).join('');
+if(tEditingPlayerIdx!=null){const inp=document.getElementById('tNameEdit');if(inp){inp.focus();inp.select();}}
+}
+
+// ===== BRACKET ENGINE (MANUAL PICKS — walang auto-advance, pati BYE kailangan i-click) =====
+function tNextPow2(n){let s=2;while(s<n)s*=2;return s}
+function tGenBracket(){
+tSetMeta();
+if(T.players.length<2){showToast('Add at least 2 players first','error');return}
+tGenBracketSilent();
+tSwitchTab('bracket');
+showToast('🏆 Bracket generated — click players to pick winners');
+}
+function tGenBracketSilent(){
+const n=T.players.length;
+if(n<2){T.matches=[];tSave();return}
+const size=tNextPow2(n);
+const slots=new Array(size).fill(null);
+for(let i=0;i<n;i++)slots[Math.floor(i*size/n)]=T.players[i];
+const rounds=Math.round(Math.log2(size));
+T.matches=[];
+for(let r=0;r<rounds;r++){
+const mc=size/Math.pow(2,r+1);
+const row=[];
+for(let m=0;m<mc;m++){
+if(r===0){row.push({a:slots[2*m]||null,b:slots[2*m+1]||null,w:null});}
+else row.push({a:null,b:null,w:null});
+}
+T.matches.push(row);
+}
+tRecompute(1);
+tSave();
+if(document.getElementById('tourneyBracketPanel').classList.contains('active'))tRenderBracket();
+}
+function tPrevWinner(r,m,side){
+const pr=T.matches[r-1];if(!pr)return null;
+const pm=pr[2*m+side];if(!pm||pm.w==null)return null;
+return pm.w===0?pm.a:pm.b;
+}
+function tRecompute(from){
+for(let r=Math.max(1,from);r<T.matches.length;r++){
+for(let m=0;m<T.matches[r].length;m++){
+const mt=T.matches[r][m];
+mt.a=tPrevWinner(r,m,0);
+mt.b=tPrevWinner(r,m,1);
+if(mt.w!=null){
+const wn=mt.w===0?mt.a:mt.b;
+if(!wn)mt.w=null;
+}
+}
+}
+tSave();
+}
+function tPick(r,m,side){
+const mt=T.matches[r][m];
+const name=side===0?mt.a:mt.b;
+if(!name){showToast('Walang player sa slot na ito — hindi pa nag-a-advance ang kabilang side');return}
+mt.w=(mt.w===side)?null:side;
+tRecompute(r+1);
+tRenderBracket();
+}
+function tResetWinners(){
+if(!T.matches.length){showToast('Generate the bracket first','error');return}
+if(!confirm('Reset all winners? Players stay — lahat ng picks mabubura.'))return;
+T.matches.forEach(row=>row.forEach(mt=>mt.w=null));
+tSave();tRenderBracket();
+showToast('Bracket reset — click players to pick winners again');
+}
+function tRoundName(r){
+const mc=T.matches[r].length;
+if(mc===1)return '🏆 GRAND FINAL';
+if(mc===2)return '⚔️ SEMIFINALS';
+if(mc===4)return '⚔️ QUARTERFINALS';
+return '⚔️ ROUND OF '+(mc*2);
+}
+function tChamp(){const last=T.matches[T.matches.length-1];if(!last)return null;const f=last[0];return(f&&f.w!=null)?(f.w===0?f.a:f.b):null}
+function tRunnerUp(){const last=T.matches[T.matches.length-1];if(!last)return null;const f=last[0];if(!f||f.w==null)return null;return f.w===0?f.b:f.a}
+function tSemis(){const rs=T.matches.length;if(rs<2)return[];return T.matches[rs-2].map(mt=>mt.w==null?null:(mt.w===0?mt.b:mt.a)).filter(Boolean)}
+
+// ===== BRACKET RENDER — aligned columns + connector lines =====
+function tCellV2(r,m,side){
+const mt=T.matches[r][m];
+const name=side===0?mt.a:mt.b;
+const isW=mt.w===side;
+const clickable=!!name;
+return '<div class="t-p2'+(isW?' t-won':'')+(clickable?' t-click':'')+(name?'':' t-empty')+'"'+
+(clickable?' onclick="tPick('+r+','+m+','+side+')" title="Click to set / unset winner"':'')+'>'+
+(name?((isW?'<i class="fas fa-crown"></i> ':'')+escapeHtml(name)):'BYE')+'</div>';
+}
+function tRenderBracket(){
+const wrap=document.getElementById('tourneyBracket');
+if(!T.matches.length){wrap.innerHTML='<div class="tourney-empty">No bracket yet — go to <b>Setup &amp; Players</b> tab and generate.</div>';return;}
+const rounds=T.matches.length;
+const size=T.matches[0].length*2;
+const leafH=size<=4?150:size<=8?120:size<=16?94:size<=32?74:60;
+const colW=196,gapX=64,padTop=16;
+const H=size*leafH+padTop*2;
+const champX=rounds*(colW+gapX);
+const totalW=champX+colW+40;
+let html='<div class="t-bracket-scroll"><div style="width:'+totalW+'px;min-width:100%;">';
+html+='<div class="t-bracket-head"><img src="'+tGetLogo()+'" alt="logo"><div><div class="t-bh-title">'+escapeHtml(T.title)+'</div><div class="t-bh-sub">'+([T.dateStr,T.timeStr].filter(Boolean).join(' • ')||'Tournament Bracket')+'</div></div></div>';
+html+='<div class="t-rounds-head">';
+for(let r=0;r<rounds;r++)html+='<span style="width:'+(colW+gapX)+'px;">'+tRoundName(r)+'</span>';
+html+='<span style="width:'+colW+'px;">👑 CHAMPION</span>';
+html+='</div>';
+html+='<div class="t-bracket-area" id="tBracketArea" style="width:'+totalW+'px;height:'+H+'px">';
+html+='<svg class="t-lines" id="tLines"></svg>';
+T.matches.forEach((row,r)=>{
+row.forEach((mt,m)=>{
+const top=(Math.pow(2,r)*(2*m+1))*leafH+padTop;
+const left=r*(colW+gapX);
+html+='<div class="t-match-v2" data-r="'+r+'" data-m="'+m+'" style="left:'+left+'px;top:'+top+'px;width:'+colW+'px;">'+tCellV2(r,m,0)+
+'<div class="t-match-vs">'+(mt.a&&mt.b?'<span>VS</span>':(mt.a||mt.b?'<span class="t-bye-tag">BYE — CLICK TO ADVANCE</span>':'<span>TBD</span>'))+'</div>'+
+tCellV2(r,m,1)+'</div>';
+});
+});
+const champ=tChamp();
+html+='<div class="t-match-v2 t-champ-col" data-r="'+rounds+'" data-m="0" style="left:'+champX+'px;top:'+(H/2)+'px;width:'+colW+'px;transform:translateY(-50%);"><div class="t-champ-box'+(champ?' t-champ-won':'')+'">'+(champ?'<img src="'+tGetLogo()+'" class="t-champ-logo" alt="logo"><i class="fas fa-trophy"></i><div>'+escapeHtml(champ)+'</div>'+((T.rewards&&T.rewards.champ)?'<div class="t-champ-reward"><i class="fas fa-gift"></i> '+escapeHtml(T.rewards.champ)+'</div>':''):'<div class="t-tbd">?</div>')+'</div></div>';
+html+='</div></div></div>';
+wrap.innerHTML=html;
+requestAnimationFrame(tDrawLines);
+}
+function tDrawLines(){
+const area=document.getElementById('tBracketArea');
+const svg=document.getElementById('tLines');
+if(!area||!svg||!T.matches.length)return;
+const ar=area.getBoundingClientRect();
+svg.setAttribute('width',area.offsetWidth);
+svg.setAttribute('height',area.offsetHeight);
+svg.setAttribute('viewBox','0 0 '+area.offsetWidth+' '+area.offsetHeight);
+let paths='';
+T.matches.forEach((row,r)=>{
+row.forEach((mt,m)=>{
+const src=area.querySelector('.t-match-v2[data-r="'+r+'"][data-m="'+m+'"]');
+const dst=area.querySelector('.t-match-v2[data-r="'+(r+1)+'"][data-m="'+Math.floor(m/2)+'"]');
+if(!src||!dst)return;
+const sr=src.getBoundingClientRect(),dr=dst.getBoundingClientRect();
+const x1=sr.right-ar.left,y1=sr.top-ar.top+sr.height/2;
+const x2=dr.left-ar.left,y2=dr.top-ar.top+dr.height/2;
+const mx=(x1+x2)/2;
+const won=mt.w!=null;
+paths+='<path d="M'+x1+' '+y1+' H'+mx+' V'+y2+' H'+x2+'" fill="none" stroke="'+(won?'#d4af37':'rgba(212,175,55,0.4)')+'" stroke-width="'+(won?3:2)+'"/>';
+});
+});
+svg.innerHTML=paths;
+}
+window.addEventListener('resize',()=>{
+const bp=document.getElementById('tourneyBracketPanel');
+if(bp&&bp.classList.contains('active'))tDrawLines();
+});
+
+// ===== COPY / SHARE (MESSENGER-READY) =====
+function tBuildText(){
+const L=[];
+L.push('🏆 '+T.title);
+if(T.dateStr)L.push('📅 '+T.dateStr+(T.timeStr?' • ⏰ '+T.timeStr:''));
+const rw=T.rewards||{};
+if(rw.champ||rw.runner||rw.semi||rw.participant){
+L.push('');L.push('🎁 PRIZES:');
+if(rw.champ)L.push('🏆 Champion: '+rw.champ);
+if(rw.runner)L.push('🥈 Runner-up: '+rw.runner);
+if(rw.semi)L.push('🥉 Semi: '+rw.semi);
+if(rw.participant)L.push('🎟 Participants: '+rw.participant);
+}
+L.push('');
+T.matches.forEach((row,r)=>{
+L.push(tRoundName(r));
+row.forEach(mt=>{
+const wn=mt.w==null?null:(mt.w===0?mt.a:mt.b);
+if(mt.a&&mt.b)L.push((mt.w!=null?'✅ ':'')+mt.a+'  vs  '+mt.b+(mt.w!=null?'  →  🏍️ '+wn:'  ⏳'));
+else if(mt.a||mt.b)L.push('▶️ '+(mt.a||mt.b)+' (BYE — pending pick)');
+else L.push('⏳ TBD');
+});
+L.push('');
+});
+const c=tChamp();if(c)L.push('👑 CHAMPION: '+c);
+const ru2=tRunnerUp();if(ru2)L.push('🥈 RUNNER-UP: '+ru2);
+const sf=tSemis();if(sf.length)L.push('🥉 SEMI-FINALISTS: '+sf.join(' • '));
+return L.join('\n');
+}
+function tCopyText(){
+if(!T.matches.length){showToast('Generate the bracket first','error');return}
+const txt=tBuildText();
+const done=()=>showToast('📋 Bracket copied! Paste it sa Messenger');
+if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopyText(txt,done));}
+else fallbackCopyText(txt,done);
+}
+async function tCopyImage(){
+if(!T.matches.length){showToast('Generate the bracket first','error');return}
+const el=document.getElementById('tBracketArea');
+if(!el||typeof html2canvas==='undefined'){showToast('Capture not available','error');return}
+try{
+const canvas=await html2canvas(el,{scale:2,backgroundColor:'#072e33',logging:false});
+const blob=await generateCanvasPngBlob(canvas);
+try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);showToast('🖼️ Bracket image copied! Paste sa Messenger');}
+catch(e){fallbackCopyText(tBuildText(),()=>showToast('Image copy unsupported — text copied instead'));}
+}catch(err){showToast('Failed: '+err.message,'error');}
+}
+async function tDownloadImage(){
+if(!T.matches.length){showToast('Generate the bracket first','error');return}
+const el=document.getElementById('tBracketArea');
+if(!el||typeof html2canvas==='undefined'){showToast('Capture not available','error');return}
+try{
+const canvas=await html2canvas(el,{scale:2,backgroundColor:'#072e33',logging:false});
+const result=await saveCanvasImage(canvas,'Tournament-Bracket-'+Date.now()+'.png',T.title);
+if(result==='downloaded')showToast('Bracket downloaded! 💾');
+}catch(err){showToast('Failed: '+err.message,'error');}
+}
+
+// ===== CERTIFICATES & TROPHY (professional — walang sales stats) =====
+function tCert(name,titleHtml,achievement,vals,labels){
+document.getElementById('certRecipientName').textContent=name;
+document.getElementById('certTitlePremium').innerHTML='<i class="fas fa-trophy"></i> '+titleHtml;
+document.getElementById('certAchievement').innerHTML=achievement;
+certShowStats([{v:vals[0],l:labels[0]},{v:vals[1],l:labels[1]},{v:vals[2],l:labels[2]}]);
+certSetLogo(tGetLogo());
+const d=T.dateStr?new Date(T.dateStr+'T00:00:00'):new Date();
+document.getElementById('certDate').textContent=d.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})+(T.timeStr?' • '+T.timeStr:'');
+document.getElementById('certificateModalOverlay').classList.add('active');
+}
+function tAwardChampion(){
+const c=tChamp();
+if(!c){showToast('No champion yet — click the winners sa bracket!','error');return}
+const rw=T.rewards||{};
+tCert(c,'TOURNAMENT CHAMPION 🏆','For winning <strong>'+escapeHtml(T.title)+'</strong> — crowned CHAMPION with an outstanding performance',[T.title,'🏆 CHAMPION',rw.champ||'—'],['TOURNAMENT','PLACEMENT','REWARD']);
+}
+function tAwardRunnerUp(){
+const ru=tRunnerUp();
+if(!ru){showToast('No runner-up yet','error');return}
+const rw=T.rewards||{};
+tCert(ru,'TOURNAMENT FINALIST 🥈','For finishing as <strong>RUNNER-UP</strong> of '+escapeHtml(T.title)+' — an epic run to the Grand Final',[T.title,'🥈 RUNNER-UP',rw.runner||'—'],['TOURNAMENT','PLACEMENT','REWARD']);
+}
+function tAwardSemi(i){
+const sf=tSemis();
+if(!sf[i]){showToast('Semi-finalist not decided yet','error');return}
+const rw=T.rewards||{};
+tCert(sf[i],'SEMIFINALIST 🥉','For reaching the <strong>SEMIFINALS</strong> of '+escapeHtml(T.title)+' — Top 4 finisher',[T.title,'🥉 TOP 4',rw.semi||'—'],['TOURNAMENT','PLACEMENT','REWARD']);
+}
+function tAwardParticipant(encodedName){
+const name=decodeURIComponent(encodedName||'');
+if(!name)return;
+const rw=T.rewards||{};
+tCert(name,'TOURNAMENT PARTICIPANT','For participating in <strong>'+escapeHtml(T.title)+'</strong> — thank you for joining!',[T.title,'🎟 PARTICIPANT',rw.participant||'—'],['TOURNAMENT','PLACEMENT','REWARD']);
+}
+async function tDownloadAllParticipantCerts(){
+if(certAllBusy)return;
+if(!T.players.length){showToast('No players yet','error');return}
+certAllBusy=true;
+const overlay=document.getElementById('certificateModalOverlay');
+const modal=document.getElementById('certificateModal');
+const dlBtn=modal.querySelector('.cert-download-btn');
+const closeBtn=modal.querySelector('.cert-close');
+const prevOverlay=overlay.style.cssText;
+const prevDl=dlBtn?dlBtn.style.cssText:'';
+const prevClose=closeBtn?closeBtn.style.cssText:'';
+overlay.classList.add('active');
+overlay.style.position='fixed';overlay.style.left='-12000px';overlay.style.top='0';overlay.style.padding='0';
+if(dlBtn)dlBtn.style.display='none';
+if(closeBtn)closeBtn.style.display='none';
+showToast('Generating '+T.players.length+' certificates...');
+try{
+for(let i=0;i<T.players.length;i++){
+tAwardParticipant(encodeURIComponent(T.players[i]));
+await new Promise(r=>setTimeout(r,450));
+const canvas=await html2canvas(modal,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#fdfcf8',logging:false});
+const blob=await generateCanvasPngBlob(canvas);
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');
+a.href=url;
+a.download='Certificate-'+(T.players[i].replace(/[^\w\- ]/g,'').trim().replace(/\s+/g,'-')||('Player-'+(i+1)))+'.png';
+document.body.appendChild(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),5000);
+await new Promise(r=>setTimeout(r,450));
+}
+showToast('✅ Downloaded ALL '+T.players.length+' participant certificates!');
+}catch(err){showToast('Failed: '+err.message,'error');}
+finally{
+overlay.classList.remove('active');
+overlay.style.cssText=prevOverlay;
+if(dlBtn)dlBtn.style.cssText=prevDl;
+if(closeBtn)closeBtn.style.cssText=prevClose;
+certAllBusy=false;
+}
+}
+function tRenderAwards(){
+const box=document.getElementById('tourneyAwardsList');
+const champ=tChamp(),ru=tRunnerUp(),sf=tSemis();
+const rw=T.rewards||{};
+const rwTag=v=>v?'<div style="margin-top:8px;font-size:12px;font-weight:800;color:var(--gold-base);background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.4);border-radius:10px;padding:6px 10px;display:inline-block;"><i class="fas fa-gift"></i> '+escapeHtml(v)+'</div>':'';
+let html='<div class="tourney-award-grid">';
+html+='<div class="tourney-award-card"><i class="fas fa-trophy aw-gold"></i><div class="aw-name">CHAMPION</div><div class="aw-sub">'+(champ?escapeHtml(champ):'Not decided yet — pick winners sa bracket')+'</div>'+rwTag(rw.champ)+'<button class="tourney-btn tourney-btn-gold" style="width:100%;margin-top:12px;" onclick="tAwardChampion()"><i class="fas fa-certificate"></i> Certificate</button></div>';
+html+='<div class="tourney-award-card"><i class="fas fa-medal aw-silver"></i><div class="aw-name">RUNNER-UP</div><div class="aw-sub">'+(ru?escapeHtml(ru):'Not decided yet')+'</div>'+rwTag(rw.runner)+'<button class="tourney-btn tourney-btn-teal" style="width:100%;margin-top:12px;" onclick="tAwardRunnerUp()"><i class="fas fa-certificate"></i> Certificate</button></div>';
+for(let i=0;i<2;i++){
+html+='<div class="tourney-award-card"><i class="fas fa-award aw-bronze"></i><div class="aw-name">SEMIFINALIST</div><div class="aw-sub">'+(sf[i]?escapeHtml(sf[i]):'Not decided yet')+'</div>'+rwTag(rw.semi)+'<button class="tourney-btn tourney-btn-outline" style="width:100%;margin-top:12px;" onclick="tAwardSemi('+i+')"><i class="fas fa-certificate"></i> Certificate</button></div>';
+}
+html+='<div class="tourney-award-card"><i class="fas fa-trophy aw-gold"></i><div class="aw-name">TROPHY CARD</div><div class="aw-sub">Animated champion trophy image</div><button class="tourney-btn tourney-btn-gold" style="width:100%;margin-top:12px;" onclick="tShowTrophy()"><i class="fas fa-image"></i> View Trophy</button></div>';
+html+='</div>';
+html+='<div style="margin-top:24px;"><div class="tourney-label"><i class="fas fa-users"></i> All Participants ('+T.players.length+')'+(rw.participant?' — <span style="color:var(--gold-base);">'+escapeHtml(rw.participant)+'</span>':'')+'</div>';
+if(T.players.length){
+html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;">';
+T.players.forEach(p=>{html+='<button class="tourney-btn tourney-btn-outline" style="padding:8px 14px;font-size:12px;" onclick="tAwardParticipant(\''+encodeURIComponent(p).replace(/'/g,'%27')+'\')"><i class="fas fa-certificate"></i> '+escapeHtml(p)+'</button>';});
+html+='</div>';
+html+='<button class="tourney-btn tourney-btn-gold" onclick="tDownloadAllParticipantCerts()"><i class="fas fa-download"></i> Download ALL Participant Certificates ('+T.players.length+')</button>';
+}else{
+html+='<div class="tourney-empty">No players yet.</div>';
+}
+html+='</div>';
+box.innerHTML=html;
+}
+
+// ===== UPCOMING TOURNAMENT POSTER =====
+function tRenderPoster(){
+const logo=document.getElementById('tPosterLogo');
+if(!logo)return;
+logo.src=tGetLogo();
+document.getElementById('tPosterTitle').textContent=T.title||'DGC eStore Tournament';
+const when=[T.dateStr,T.timeStr].filter(Boolean).join('   •   ');
+document.getElementById('tPosterWhen').textContent=when||'⏱ Date to be announced — stay tuned!';
+const rw=T.rewards||{};
+const rows=[];
+if(rw.champ)rows.push('🏆 Champion — '+rw.champ);
+if(rw.runner)rows.push('🥈 Runner-up — '+rw.runner);
+if(rw.semi)rows.push('🥉 Semi-finalists — '+rw.semi);
+if(rw.participant)rows.push('🎟 Participants — '+rw.participant);
+const box=document.getElementById('tPosterRewards');
+box.innerHTML=rows.length?rows.map(r=>'<div>'+escapeHtml(r)+'</div>').join(''):'<div style="text-align:center;">✨ Exciting prizes await — join now! ✨</div>';
+document.getElementById('tPosterCtaText').textContent=T.posterCta||'REGISTER NOW';
+}
+async function downloadTournamentPoster(){
+const el=document.getElementById('tourneyPosterCanvas');
+if(!el||typeof html2canvas==='undefined'){showToast('Capture not available','error');return}
+try{
+const canvas=await html2canvas(el,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#072e33',logging:false});
+const result=await saveCanvasImage(canvas,'Tournament-Poster-'+Date.now()+'.png',T.title);
+if(result==='downloaded')showToast('Poster downloaded! 📢');
+}catch(err){showToast('Failed: '+err.message,'error');}
+}
+async function tCopyPosterImage(){
+const el=document.getElementById('tourneyPosterCanvas');
+if(!el||typeof html2canvas==='undefined'){showToast('Capture not available','error');return}
+try{
+const canvas=await html2canvas(el,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#072e33',logging:false});
+const blob=await generateCanvasPngBlob(canvas);
+try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);showToast('Poster copied! Paste sa Messenger 🖼️');}
+catch(e){showToast('Copy not supported dito — gamitin ang Download','error');}
+}catch(err){showToast('Failed: '+err.message,'error');}
+}
+
+// ===== TROPHY =====
+function tShowTrophy(){
+const c=tChamp();
+if(!c){showToast('No champion yet — finish the bracket!','error');return}
+const tl=document.querySelector('#trophyCard .trophy-logo');
+if(tl)tl.src=tGetLogo();
+document.getElementById('trophyChampName').textContent=c;
+document.getElementById('trophyEventName').textContent=T.title;
+document.getElementById('trophyDateLine').textContent=(T.dateStr?T.dateStr:'')+(T.timeStr?' • '+T.timeStr:'');
+document.getElementById('trophyOverlay').classList.add('active');
+}
+function closeTrophyOverlay(){document.getElementById('trophyOverlay').classList.remove('active');}
+async function downloadTrophyImage(){
+const card=document.getElementById('trophyCard');
+if(!card||typeof html2canvas==='undefined'){showToast('Capture not available','error');return}
+try{
+const canvas=await html2canvas(card,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#0d5d65',logging:false});
+const result=await saveCanvasImage(canvas,'Trophy-'+tChamp()+'-'+Date.now()+'.png','Champion Trophy');
+if(result==='downloaded')showToast('Trophy downloaded! 🏆');
+}catch(err){showToast('Failed: '+err.message,'error');}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeTournamentModal();closeTrophyOverlay();}});
+
 </script>
 
 
@@ -4865,18 +5556,18 @@ function downloadDiscountPoster() {
 <div class="cert-divider"></div>
 <div class="cert-achievement" id="certAchievement">For being our <strong>TOP 1 CUSTOMER</strong>
 with outstanding loyalty and support</div>
-<div class="cert-stats">
+<div class="cert-stats" id="certStatsBlock">
 <div class="cert-stat">
 <div class="cert-stat-value" id="certTotalSpent">₱0</div>
-<div class="cert-stat-label">Total Spent</div>
+<div class="cert-stat-label" id="certLabel1">Total Spent</div>
 </div>
 <div class="cert-stat">
 <div class="cert-stat-value" id="certOrderCount">0</div>
-<div class="cert-stat-label">Orders</div>
+<div class="cert-stat-label" id="certLabel2">Orders</div>
 </div>
 <div class="cert-stat">
 <div class="cert-stat-value" id="certCompletedCount">0</div>
-<div class="cert-stat-label">Completed</div>
+<div class="cert-stat-label" id="certLabel3">Completed</div>
 </div>
 </div>
 </div>
@@ -5328,6 +6019,128 @@ with outstanding loyalty and support</div>
 <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;background:linear-gradient(135deg,#8b5cf6 0%,#7c3aed 100%);box-shadow:0 4px 15px rgba(139,92,246,0.4);" onclick="doSaveAction('copy')"><i class="fas fa-image"></i> Copy Image (paste sa Messenger)</button>
 <button class="btn btn-secondary" style="width:100%;justify-content:center;" onclick="doSaveAction('share')"><i class="fas fa-share-alt"></i> Share / Save to Photos</button>
 <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:10px;" onclick="closeSaveOptions()">Cancel</button>
+</div>
+</div>
+
+
+
+<!-- ===== TOURNAMENT BRACKET MODAL (DARK TEAL & GOLD) ===== -->
+<div class="tourney-modal-overlay" id="tourneyModalOverlay" onclick="if(event.target===this)closeTournamentModal()">
+<div class="tourney-modal" onclick="event.stopPropagation()">
+<div class="tourney-head">
+<h3><i class="fas fa-trophy"></i> Tournament Bracket</h3>
+<div style="display:flex;gap:8px;align-items:center;">
+<button class="tourney-shuffle-top" onclick="tShuffle()" title="Shuffle players"><i class="fas fa-random"></i></button>
+<button class="rewards-close" onclick="closeTournamentModal()"><i class="fas fa-times"></i></button>
+</div>
+</div>
+<div class="tourney-tabs">
+<button class="tourney-tab active" data-ttab="setup" onclick="tSwitchTab('setup')"><i class="fas fa-users"></i> Setup &amp; Players</button>
+<button class="tourney-tab" data-ttab="bracket" onclick="tSwitchTab('bracket')"><i class="fas fa-sitemap"></i> Bracket</button>
+<button class="tourney-tab" data-ttab="awards" onclick="tSwitchTab('awards')"><i class="fas fa-award"></i> Awards &amp; Certificates</button>
+<button class="tourney-tab" data-ttab="poster" onclick="tSwitchTab('poster')"><i class="fas fa-bullhorn"></i> Upcoming Poster</button>
+</div>
+<div class="tourney-body">
+
+<div class="tourney-panel active" id="tourneySetupPanel">
+<div class="tourney-meta">
+<div><div class="tourney-label"><i class="fas fa-pen"></i> Tournament Title</div><input type="text" class="tourney-input" id="tourneyTitleInput" value="DGC eStore Tournament" onchange="tSetMeta()"></div>
+<div><div class="tourney-label"><i class="fas fa-calendar"></i> Date</div><input type="date" class="tourney-input" id="tourneyDateInput" onchange="tSetMeta()"></div>
+<div><div class="tourney-label"><i class="fas fa-clock"></i> Time</div><input type="time" class="tourney-input" id="tourneyTimeInput" onchange="tSetMeta()"></div>
+</div>
+
+<div class="tourney-label" style="margin-top:16px;"><i class="fas fa-image"></i> Tournament Logo <small style="font-weight:600;text-transform:none;letter-spacing:0;color:#8a999b;">(optional — default trophy logo kung wala)</small></div>
+<div class="t-logo-row">
+<img id="tourneyLogoPreview" src="" alt="logo">
+<div class="t-logo-btns">
+<label class="t-logo-btn" style="margin:0;"><i class="fas fa-upload"></i> Upload Logo<input type="file" accept="image/*" style="display:none;" onchange="tOnLogoSelected(this)"></label>
+<button class="t-logo-btn danger" onclick="tRemoveLogo()"><i class="fas fa-trash"></i> Remove</button>
+</div>
+</div>
+
+<div class="tourney-label" style="margin-top:16px;"><i class="fas fa-gift"></i> Rewards / Prizes <small style="font-weight:600;text-transform:none;letter-spacing:0;color:#8a999b;">(optional — pwedeng walang ilagay)</small></div>
+<div class="trw-grid">
+<div><div class="tourney-label"><i class="fas fa-trophy"></i> Champion</div><input type="text" class="tourney-input" id="trwChamp" placeholder="e.g. ₱500 + Skin" onchange="tSetMeta()"></div>
+<div><div class="tourney-label"><i class="fas fa-medal"></i> Runner-up</div><input type="text" class="tourney-input" id="trwRunner" placeholder="e.g. ₱200" onchange="tSetMeta()"></div>
+<div><div class="tourney-label"><i class="fas fa-award"></i> Semi-finalists</div><input type="text" class="tourney-input" id="trwSemi" placeholder="e.g. ₱50 each" onchange="tSetMeta()"></div>
+<div><div class="tourney-label"><i class="fas fa-users"></i> Participants</div><input type="text" class="tourney-input" id="trwParticipant" placeholder="e.g. Certificate only" onchange="tSetMeta()"></div>
+</div>
+
+<div class="tourney-label" style="margin-top:16px;"><i class="fas fa-paste"></i> Paste Player List — auto-parse</div>
+<textarea class="tourney-textarea" id="tourneyPaste" placeholder="Paste any numbered list here...&#10;&#10;Examples:&#10;1. Juan Dela Cruz&#10;2) Pedro Santos&#10;3 - Kim Reyes&#10;&#10;OR a quick range:&#10;1-18   /   1-36   /   1-64&#10;&#10;OR plain names, one per line."></textarea>
+<div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+<button class="tourney-btn tourney-btn-gold" onclick="tGenBracket()"><i class="fas fa-magic"></i> Parse List &amp; Generate Bracket</button>
+<div class="tourney-hint"><i class="fas fa-lightbulb"></i> Accepts "1-36", "1. name", "2) name", "3 - name", or plain lines — duplicates auto-removed</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center;">
+<input type="text" class="tourney-input" id="tourneySingleName" placeholder="Add one player..." style="flex:1;min-width:180px;" onkeydown="if(event.key==='Enter')tAddOne()">
+<button class="tourney-btn tourney-btn-teal" onclick="tAddOne()"><i class="fas fa-plus"></i> Add</button>
+<button class="tourney-btn tourney-btn-outline" onclick="tShuffle()"><i class="fas fa-random"></i> Shuffle</button>
+<button class="tourney-btn tourney-btn-outline" style="border-color:rgba(255,71,87,.4);color:var(--danger);" onclick="tClearPlayers()"><i class="fas fa-trash"></i> Clear</button>
+<span id="tourneyCount" style="font-size:13px;font-weight:800;color:var(--teal-deep);">0 players</span>
+</div>
+<div class="tourney-players" id="tourneyPlayers"></div>
+<div class="tourney-hint" style="margin-top:12px;"><i class="fas fa-hand-pointer"></i> Drag to reorder (manual seeding) • Click the <i class="fas fa-pen" style="color:var(--gold-base);"></i> or double-click a name to edit it</div>
+</div>
+
+<div class="tourney-panel" id="tourneyBracketPanel">
+<div class="tourney-actions">
+<button class="tourney-btn tourney-btn-gold" onclick="tCopyText()"><i class="fas fa-copy"></i> Copy Bracket Text</button>
+<button class="tourney-btn tourney-btn-teal" onclick="tCopyImage()"><i class="fas fa-image"></i> Copy Image</button>
+<button class="tourney-btn tourney-btn-outline" onclick="tDownloadImage()"><i class="fas fa-download"></i> Download PNG</button>
+<button class="tourney-btn tourney-btn-outline" onclick="tShuffle()"><i class="fas fa-random"></i> Reshuffle</button>
+<button class="tourney-btn tourney-btn-outline" onclick="tSwitchTab('setup')"><i class="fas fa-users"></i> Edit Players</button>
+<button class="tourney-btn tourney-btn-outline" style="border-color:rgba(255,71,87,.45);color:var(--danger);" onclick="tResetWinners()"><i class="fas fa-rotate-left"></i> Reset Winners</button>
+</div>
+<div class="tourney-hint" style="margin-bottom:10px;"><i class="fas fa-hand-pointer"></i> MANUAL PICKS — kahit BYE, kailangan mong i-click ang player para um-advance. Click a player to declare winner ✅, click again to unset. Kapag nagbago ang isang resulta, auto-clear ang downstream picks.</div>
+<div id="tourneyBracket"></div>
+</div>
+
+<div class="tourney-panel" id="tourneyAwardsPanel">
+<div id="tourneyAwardsList"></div>
+</div>
+
+<div class="tourney-panel" id="tourneyPosterPanel">
+<div class="tourney-meta" style="grid-template-columns:2fr 1fr;">
+<div><div class="tourney-label"><i class="fas fa-pen"></i> Poster Headline</div><input type="text" class="tourney-input" id="tourneyPosterNote" placeholder="e.g. Registration Open — Limited Slots!" onchange="tSetMeta();tRenderPoster()"></div>
+<div><div class="tourney-label"><i class="fas fa-bullhorn"></i> Call to Action</div><input type="text" class="tourney-input" id="tourneyPosterCta" placeholder="REGISTER NOW" onchange="tSetMeta();tRenderPoster()"></div>
+</div>
+<div class="tourney-hint" style="margin:10px 0;"><i class="fas fa-lightbulb"></i> Gumagamit ito ng Title, Date, Time, Logo at Rewards mula sa <b>Setup</b> tab — doon mo i-edit ang laman ng poster.</div>
+<div class="tourney-actions">
+<button class="tourney-btn tourney-btn-gold" onclick="downloadTournamentPoster()"><i class="fas fa-download"></i> Download Poster</button>
+<button class="tourney-btn tourney-btn-teal" onclick="tCopyPosterImage()"><i class="fas fa-image"></i> Copy Image</button>
+</div>
+<div class="t-poster-wrap"><div class="t-poster" id="tourneyPosterCanvas">
+<img class="t-poster-logo" id="tPosterLogo" alt="logo">
+<div class="t-poster-kicker">UPCOMING TOURNAMENT</div>
+<div class="t-poster-title" id="tPosterTitle">Tournament</div>
+<div class="t-poster-when" id="tPosterWhen">Date to be announced</div>
+<div class="t-poster-rewards" id="tPosterRewards"></div>
+<div class="t-poster-cta" id="tPosterCtaText">REGISTER NOW</div>
+<div class="t-poster-foot">DGC eStore • GLHF!</div>
+</div></div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- ===== CHAMPION TROPHY CARD ===== -->
+<div class="trophy-overlay" id="trophyOverlay" onclick="if(event.target===this)closeTrophyOverlay()">
+<div onclick="event.stopPropagation()">
+<div class="poster-actions-bar no-capture" style="justify-content:flex-end;max-width:440px;margin:0 auto 14px;">
+<button class="btn btn-primary" style="background:linear-gradient(135deg,var(--teal-light),var(--teal-deep));box-shadow:0 4px 15px rgba(13,93,101,.4);" onclick="downloadTrophyImage()"><i class="fas fa-download"></i> Download Trophy</button>
+<button class="modal-close" style="width:44px;height:44px;background:#fff;color:var(--teal-deep);border:2px solid var(--gold-base);" onclick="closeTrophyOverlay()"><i class="fas fa-times"></i></button>
+</div>
+<div class="trophy-card" id="trophyCard">
+<img src="https://i.imgur.com/qZQxKje.png" class="trophy-logo" alt="DGC eStore" crossorigin="anonymous" onerror="this.onerror=null;this.src='dgcestorelogo.png'">
+<div class="trophy-kicker">TOURNAMENT CHAMPION</div>
+<i class="fas fa-trophy trophy-icon"></i>
+<div class="trophy-name" id="trophyChampName">Champion</div>
+<div class="trophy-event" id="trophyEventName">DGC eStore Tournament</div>
+<div class="trophy-date" id="trophyDateLine"></div>
+<div class="trophy-foot">DGC eStore • GGWP!</div>
+</div>
 </div>
 </div>
 
